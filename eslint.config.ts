@@ -34,7 +34,8 @@ export default defineConfig([
          'prettier/prettier': 'error', // 确保格式错误被标记
          'vue/multi-word-component-names': 'off',
          '@typescript-eslint/no-explicit-any': 'off',
-         '@typescript-eslint/no-empty-object-type': 'off'
+         '@typescript-eslint/no-empty-object-type': 'off',
+         'no-undef': 'off'
       },
       // 可选：只对特定文件生效
       files: ['**/*.{js,ts,vue,jsx,tsx}'],

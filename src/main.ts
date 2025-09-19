@@ -1,9 +1,18 @@
 import { createSSRApp } from 'vue';
 import App from './App.vue';
-import '@/asscess/index.css';
+import '@/static/css/index.css';
+import router from './router';
+import '@/access/index'; // 权限控制
+import * as Pinia from 'pinia';
+import { createUnistorage } from 'pinia-plugin-unistorage';
 export function createApp() {
    const app = createSSRApp(App);
+   const store = Pinia.createPinia();
+   store.use(createUnistorage());
+   app.use(router);
+   app.use(store);
    return {
-      app
+      app,
+      Pinia
    };
 }

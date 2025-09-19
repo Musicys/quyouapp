@@ -1,16 +1,101 @@
 {
-  "pages": [
-    {
-      "path": "pages/index/index",
-      "style": {
-        "navigationBarTitleText": "uni-app"
+   "globalStyle": {
+      "navigationBarTextStyle": "black",
+      "navigationBarTitleText": "Uni App",
+      "navigationBarBackgroundColor": "#F8F8F8",
+      "backgroundColor": "#F8F8F8",
+
+      "navigationStyle": "custom"
+   },
+   "pages": [
+      {
+         "path": "pages/Login/index",
+         "name": "login",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "登录",
+            "navigationBarBackgroundColor": "#E7F0FF"
+         }
+      },
+      {
+         "path": "pages/tabar/Home/index",
+         "name": "home",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "首页"
+         }
+      },
+      {
+         "path": "pages/tabar/Message/index",
+         "name": "message",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "消息"
+         }
+      },
+      {
+         "path": "pages/tabar/Dynamic/index",
+         "name": "dynamic",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "动态"
+         }
+      },
+      {
+         "path": "pages/tabar/Mine/index",
+         "name": "mine",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "我的"
+         }
       }
-    }
-  ],
-  "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "uni-app",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
-  }
+   ],
+   "tabBar": {
+      "color": "#bfbfbf",
+      "selectedColor": "#0165FF",
+      "backgroundColor": "#ffffff",
+      "list": [
+         {
+            "pagePath": "pages/tabar/Home/index",
+            "iconPath": "static/tabar/home.png",
+            "selectedIconPath": "static/tabar/home.png",
+            "text": "主页"
+         },
+         {
+            "pagePath": "pages/tabar/Dynamic/index",
+            "iconPath": "static/tabar/dynamic.png",
+            "selectedIconPath": "static/tabar/dynamic.png",
+            "text": "动态"
+         },
+         {
+            "pagePath": "pages/tabar/Message/index",
+            "iconPath": "static/tabar/message.png",
+            "selectedIconPath": "static/tabar/message.png",
+            "text": "消息"
+         },
+         {
+            "pagePath": "pages/tabar/Mine/index",
+            "iconPath": "static/tabar/mine.png",
+            "selectedIconPath": "static/tabar/mine.png",
+            "text": "我的"
+         }
+      ]
+   },
+   "easycom": {
+      "custom": {
+         "^(?!z-paging-refresh|z-paging-load-more)z-paging(.*)": "z-paging/components/z-paging$1/z-paging$1.vue"
+      }
+   }
 }

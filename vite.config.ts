@@ -1,14 +1,15 @@
 // vite.config.mts
 import { defineConfig } from 'vite';
-
 import uni from '@dcloudio/vite-plugin-uni';
 import { resolve } from 'path';
 import Components from '@uni-helper/vite-plugin-uni-components';
 import { WotResolver } from '@uni-helper/vite-plugin-uni-components/resolvers';
 import eslintPlugin from 'vite-plugin-eslint';
 import tailwindcss from '@tailwindcss/vite';
+import TransformPages from 'uni-read-pages-vite';
 
 export default defineConfig({
+   transpileDependencies: ['z-paging'],
    plugins: [
       tailwindcss(),
       uni.default(),
@@ -22,6 +23,9 @@ export default defineConfig({
          cache: false // 是否启用缓存
       })
    ],
+   define: {
+      ROUTES: new TransformPages().routes
+   },
    css: {
       preprocessorOptions: {
          scss: {
@@ -43,7 +47,7 @@ export default defineConfig({
       open: true,
       proxy: {
          '/api': {
-            target: 'https://qq320.cc/',
+            target: 'http://localhost:8080/',
             changeOrigin: true,
             rewrite: path => path.replace(/^\/api/, '')
          }
