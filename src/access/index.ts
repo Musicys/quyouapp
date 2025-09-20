@@ -2,6 +2,7 @@ import router from '@/router';
 
 router.beforeEach((to, from, next) => {
    // next入参 false 以取消导航
+
    console.log('前置');
    next(true);
 });

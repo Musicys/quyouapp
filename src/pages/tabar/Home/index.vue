@@ -1,31 +1,55 @@
-<!-- 使用页面滚动示例 -->
 <template>
-   <!-- 此时使用了页面的滚动，z-paging不需要有确定的高度，use-page-scroll需要设置为true -->
-   <z-paging ref="paging" v-model="dataList" use-page-scroll @query="queryList">
-      <template #top> 导航栏 </template>
-      <template #empty>
-         <!-- <empty-view /> -->
-         <NoData></NoData>
-      </template>
-      <view class="item" v-for="(item, index) in dataList" :key="index">
-         <view class="item-title">{{ index }}</view>
-      </view>
-
-      <template #bottom> </template>
-   </z-paging>
+   <view class="page">
+      <wd-tabs v-model="tab">
+         <block v-for="item in tabs" :key="item.value">
+            <wd-tab :title="`${item.title}`" :name="item.value">
+               <view class="content" v-if="istab == 0"> 123 </view
+               ><view class="content" v-if="istab == 1"> 123 </view>
+            </wd-tab>
+         </block>
+      </wd-tabs>
+      <view class="but"> <wd-icon name="chat" size="22px"></wd-icon> </view>
+   </view>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from 'vue';
-import NoData from '@/components/no-data/index.vue';
-const paging = ref(null);
-
-let dataList = ref();
-
-const queryList = (page, pageSize) => {
-   paging.value.complete([1, 2, 3, 4, 4, 5, 6, 7, 8, 5, 9, page, pageSize]);
-};
-// 类似mixins，如果是页面滚动务必要写这一行，并传入当前ref绑定的paging，注意此处是paging，而非paging.value
-
-// 其他省略
+const tabs = ref([
+   {
+      title: '附近',
+      value: '0'
+   },
+   {
+      title: '兴趣',
+      value: '1'
+   }
+]);
+const tab = ref(0);
 </script>
+
+<style lang="scss" scoped>
+:deep() {
+   .wd-tabs__nav-container {
+      width: 250rpx;
+   }
+   .is-active {
+      font-size: 36rpx !important;
+   }
+   .wd-tabs__nav {
+      position: fixed;
+      top: 0;
+      z-index: 1;
+      background: #ffe088;
+   }
+}
+.page {
+   position: relative;
+}
+.but {
+   position: fixed;
+
+   top: 0;
+   z-index: 99;
+   right: 15rpx;
+}
+</style>

@@ -1,5 +1,6 @@
 <template>
-   <view class="w-full !flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 h-[100vh] to-purple-50">
+   <view
+      class="w-full !flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 h-[100vh] to-purple-50">
       <!-- 登录/注册表单卡片 -->
       <view class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 md:p-8">
          <!-- 标题 -->
@@ -13,7 +14,8 @@
             <view
                class="!flex-1 py-3 text-center cursor-pointer transition-all duration-300"
                :class="{
-                  'text-blue-500 border-b-2 border-blue-500 font-medium': isLoginMode,
+                  'text-blue-500 border-b-2 border-blue-500 font-medium':
+                     isLoginMode,
                   'text-gray-500': !isLoginMode
                }"
                @click="toggleMode(true)">
@@ -22,7 +24,8 @@
             <view
                class="!flex-1 py-3 text-center cursor-pointer transition-all duration-300"
                :class="{
-                  'text-blue-500 border-b-2 border-blue-500 font-medium': !isLoginMode,
+                  'text-blue-500 border-b-2 border-blue-500 font-medium':
+                     !isLoginMode,
                   'text-gray-500': isLoginMode
                }"
                @click="toggleMode(false)">
@@ -50,7 +53,12 @@
                shape="rounded"
                :border="true" />
 
-            <wd-button type="primary" block style="margin-top: 1em" shape="rounded" @click="handleLogin">
+            <wd-button
+               type="primary"
+               block
+               style="margin-top: 1em"
+               shape="rounded"
+               @click="handleLogin">
                登录
             </wd-button>
          </view>
@@ -101,7 +109,14 @@
                </wd-button>
             </view>
 
-            <wd-button type="primary" block class="!mt-6" shape="rounded" @click="handleRegister"> 注册 </wd-button>
+            <wd-button
+               type="primary"
+               block
+               class="!mt-6"
+               shape="rounded"
+               @click="handleRegister">
+               注册
+            </wd-button>
          </view>
       </view>
    </view>
@@ -149,8 +164,6 @@ const sendVerificationCode = () => {
       return;
    }
 
-   // 模拟发送验证码
-   console.log('发送验证码到:', registerForm.userAccount);
    startCountdown();
    uni.showToast({
       title: '验证码已发送',
@@ -230,10 +243,9 @@ const handleLogin = () => {
    // 模拟登录成功
 
    UserLogin(loginForm).then(res => {
-      console.log(res);
-
       if (res.code == 0) {
          store.setUserInfo(res.data);
+         store.setTokens({ ...res.data, tokens: loginForm, is_default: 1 });
          uni.showToast({
             title: '登录成功',
             icon: 'success',

@@ -29,7 +29,10 @@ service.interceptors.response.use(
    response => {
       const { data } = response;
       if (data.code !== 0) {
-         uni.showToast({ title: data.description || data.message || '请求失败', icon: 'none' });
+         uni.showToast({
+            title: data.description || data.message || '请求失败',
+            icon: 'none'
+         });
          return Promise.reject(data);
       }
       return data;

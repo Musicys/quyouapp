@@ -1,10 +1,9 @@
 module.exports = {
    // 引用 JSON Schema 以提供编辑器自动补全和验证
-   $schema:
-      'https://json.schemastore.org/prettierrc',
+   $schema: 'https://json.schemastore.org/prettierrc',
 
    // 单行代码的最大长度，超过此长度会进行换行
-   printWidth: 120,
+   printWidth: 80,
 
    // 每个缩进级别使用的空格数
    tabWidth: 3,
