@@ -3,7 +3,7 @@
    <!-- 此时使用了页面的滚动，z-paging不需要有确定的高度，use-page-scroll需要设置为true -->
    <z-paging ref="paging" v-model="dataList" use-page-scroll @query="queryList">
       <template #top>
-         <view style="margin-top: 80rpx"> </view>
+         <Navtop />
       </template>
       <template #empty>
          <!-- <empty-view /> -->
@@ -18,8 +18,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
 import NoData from '@/components/no-data/index.vue';
+import Navtop from '@/components/nav-top/index.vue';
 const paging = ref(null);
 
 let dataList = ref();

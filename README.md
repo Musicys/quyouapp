@@ -29,6 +29,7 @@ pnpm run dev
 - z-hook[z-hook](https://www.npmjs.com/package/zhook)
 - luch-request [luch-request](https://www.npmjs.com/package/luch-request)
 - pina[pina](https://www.npmjs.com/package/pinia)
+- unplugin-auto-import [unplugin-auto-import](https://www.npmjs.com/package/unplugin-auto-import)
 
 ## 项目结构
 

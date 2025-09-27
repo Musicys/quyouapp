@@ -1,5 +1,5 @@
 // 用户标签使用字符串数组
-interface User {
+export interface User {
    id: number;
    username: string;
    userAccount: string;

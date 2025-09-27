@@ -1,132 +1,137 @@
 <template>
-   <view
-      class="w-full !flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 h-[100vh] to-purple-50">
-      <!-- 登录/注册表单卡片 -->
-      <view class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 md:p-8">
-         <!-- 标题 -->
-         <view class="text-center mb-8">
-            <h1 class="text-2xl font-bold text-gray-800 mb-1">欢迎回来</h1>
-            <p class="text-gray-500 text-sm">登录您的账号继续使用</p>
+   <view class="wrapper" :style="colorStyle">
+      <view class="bag">
+         <img
+            :src="imgHost + '/statics/images/users/login-bg.jpg'"
+            alt="登录背景" />
+      </view>
+      <!-- #ifdef MP -->
+      <view class="title-bar" style="height: 43px">
+         <view class="icon" @click="back" v-if="!isHome">
+            <image src="../static/left.png"></image>
          </view>
-
-         <!-- 模式切换标签 -->
-         <view class="!flex border-b border-gray-200 mb-6">
-            <view
-               class="!flex-1 py-3 text-center cursor-pointer transition-all duration-300"
-               :class="{
-                  'text-blue-500 border-b-2 border-blue-500 font-medium':
-                     isLoginMode,
-                  'text-gray-500': !isLoginMode
-               }"
-               @click="toggleMode(true)">
-               登录
+         <view class="icon" @click="home" v-else>
+            <image src="../static/home.png"></image>
+         </view>
+         {{ pageTitle }}
+      </view>
+      <!-- #endif -->
+      <view class="page-msg">
+         <view class="title">
+            {{ current ? '快速登录' : '账号登录' }}
+         </view>
+         <view class="tip"> 首次登录会自动注册 </view>
+      </view>
+      <view class="page-form">
+         <view v-if="isLoginMode" class="animate-fadeIn">
+            <!-- 登录表单 -->
+            <view class="item">
+               <input
+                  type="text"
+                  placeholder="请输入账号"
+                  placeholder-class="placeholder"
+                  v-model="loginForm.userAccount"
+                  :adjust-position="false" />
             </view>
-            <view
-               class="!flex-1 py-3 text-center cursor-pointer transition-all duration-300"
-               :class="{
-                  'text-blue-500 border-b-2 border-blue-500 font-medium':
-                     !isLoginMode,
-                  'text-gray-500': isLoginMode
-               }"
-               @click="toggleMode(false)">
-               注册
+            <view class="item">
+               <input
+                  type="password"
+                  placeholder="请输入密码"
+                  placeholder-class="placeholder"
+                  v-model="loginForm.userPassword"
+                  :adjust-position="false" />
             </view>
+            <!-- <view class="btn" @click="handleLogin"> 登录 </view> -->
+            <wd-button @click="handleLogin" class="w-full" type="success"
+               >登录</wd-button
+            >
          </view>
-
-         <!-- 登录表单 -->
-         <view v-if="isLoginMode" class="space-y-4 animate-fadeIn">
-            <wd-input
-               v-model="loginForm.userAccount"
-               placeholder="请输入账号"
-               clearable
-               class="w-full"
-               shape="rounded"
-               :border="true"
-               custom-class="mt-1" />
-
-            <wd-input
-               v-model="loginForm.userPassword"
-               type="password"
-               placeholder="请输入密码"
-               clearable
-               class="w-full"
-               shape="rounded"
-               :border="true" />
-
-            <wd-button
-               type="primary"
-               block
-               style="margin-top: 1em"
-               shape="rounded"
-               @click="handleLogin">
-               登录
-            </wd-button>
-         </view>
-
          <!-- 注册表单 -->
-         <view v-else class="space-y-4 animate-fadeIn">
-            <wd-input
-               v-model="registerForm.userAccount"
-               placeholder="请设置账号"
-               clearable
-               class="w-full"
-               shape="rounded"
-               :border="true" />
-
-            <wd-input
-               v-model="registerForm.userPassword"
-               type="password"
-               placeholder="请设置密码"
-               clearable
-               class="w-full"
-               shape="rounded"
-               :border="true" />
-
-            <wd-input
-               v-model="registerForm.confirmuserPassword"
-               type="password"
-               placeholder="请确认密码"
-               clearable
-               class="w-full"
-               shape="rounded"
-               :border="true" />
-
-            <view class="!flex gap-3">
-               <wd-input
-                  v-model="registerForm.verificationCode"
+         <view v-else class="animate-fadeIn">
+            <view class="item">
+               <input
+                  type="text"
+                  placeholder="请设置账号"
+                  placeholder-class="placeholder"
+                  v-model="registerForm.userAccount"
+                  :adjust-position="false" />
+            </view>
+            <view class="item">
+               <input
+                  type="password"
+                  placeholder="请设置密码"
+                  placeholder-class="placeholder"
+                  v-model="registerForm.userPassword"
+                  :adjust-position="false" />
+            </view>
+            <view class="item">
+               <input
+                  type="password"
+                  placeholder="请确认密码"
+                  placeholder-class="placeholder"
+                  v-model="registerForm.confirmuserPassword"
+                  :adjust-position="false" />
+            </view>
+            <view class="item acea-row row-between-wrapper">
+               <input
+                  type="number"
                   placeholder="请输入验证码"
-                  clearable
-                  class="!flex-1"
-                  shape="rounded"
-                  :border="true" />
-               <wd-button
-                  type="success"
-                  :block="true"
-                  size="small"
+                  placeholder-class="placeholder"
+                  :maxlength="6"
+                  class="codeIput"
+                  v-model="registerForm.verificationCode"
+                  :adjust-position="false" />
+               <view class="line"></view>
+               <button
+                  class="code font-num"
+                  :class="countdown > 0 ? 'on' : ''"
                   :disabled="countdown > 0"
                   @click="sendVerificationCode">
                   {{ countdown > 0 ? `${countdown}秒后重发` : '获取验证码' }}
-               </wd-button>
+               </button>
             </view>
-
-            <wd-button
-               type="primary"
-               block
-               class="!mt-6"
-               shape="rounded"
-               @click="handleRegister">
-               注册
-            </wd-button>
+            <view class="btn" @click="handleRegister"> 注册 </view>
          </view>
+
+         <!-- 其他登录方式 -->
+         <view class="appLogin">
+            <view class="hds">
+               <view class="line"></view>
+               <p>其他登录方式</p>
+               <view class="line"></view>
+            </view>
+            <view class="btn-wrapper">
+               <view class="btn wx">
+                  <text>微信</text>
+               </view>
+               <view class="btn mima">
+                  <text>密码</text>
+               </view>
+               <view class="btn yanzheng">
+                  <text>验证码</text>
+               </view>
+               <view class="btn pingguo">
+                  <text>苹果</text>
+               </view>
+            </view>
+         </view>
+      </view>
+      <!-- 协议 -->
+      <view class="protocol">
+         登录/注册即表示您已同意
+         <text class="main-color">《用户协议》</text>
+         和
+         <text class="main-color">《隐私政策》</text>
       </view>
    </view>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
 import { useRouter } from 'uni-mini-router';
 import { useStore } from '@/store/user';
 import { UserLogin } from '@/api/user';
+import { sockeStore } from '@/store/socke';
+const webstore = sockeStore();
 const router = useRouter();
 const store = useStore();
 
@@ -236,16 +241,20 @@ const validateForm = (type: 'login' | 'register'): boolean => {
 
 // 处理登录
 const handleLogin = () => {
-   //
-   // return;
    if (!validateForm('login')) return;
 
    // 模拟登录成功
-
    UserLogin(loginForm).then(res => {
       if (res.code == 0) {
          store.setUserInfo(res.data);
          store.setTokens({ ...res.data, tokens: loginForm, is_default: 1 });
+         if (webstore.$state.SocketTask) {
+            webstore.$state.SocketTask.close(); //关闭连接
+         }
+         setTimeout(() => {
+            webstore.websocke(res.data.id);
+         }, 1000);
+
          uni.showToast({
             title: '登录成功',
             icon: 'success',
@@ -253,29 +262,12 @@ const handleLogin = () => {
             success: () => {
                // 延迟跳转防止提示被覆盖
                setTimeout(() => {
-                  router.pushTab('/pages/tabar/Home/index');
+                  router.pushTab('/pages/tabar/home/index');
                }, 1500);
             }
          });
       }
    });
-
-   return;
-
-   // // 显示登录成功提示
-   // uni.showToast({
-   //    title: '登录成功',
-   //    icon: 'success',
-   //    duration: 1500,
-   //    success: () => {
-   //       // 延迟跳转防止提示被覆盖
-   //       setTimeout(() => {
-   //          router.push({
-   //             path: '/pages/tabar/home/index'
-   //          });
-   //       }, 1500);
-   //    }
-   // });
 };
 
 // 处理注册
@@ -301,10 +293,27 @@ const handleRegister = () => {
       }
    });
 };
+
+// 新增的辅助变量和方法
+const current = ref(false);
+const pageTitle = ref('账号登录');
+const isHome = ref(false);
+const imgHost = ref('');
+const colorStyle = ref({
+   '--view-theme': '#1AAD19'
+});
+
+const back = () => {
+   router.back();
+};
+
+const home = () => {
+   router.pushTab('/pages/tabar/home/index');
+};
 </script>
 
 <style lang="scss" scoped>
-/* 自定义动画 */
+// 淡入动画
 @keyframes fadeIn {
    from {
       opacity: 0;
@@ -315,12 +324,286 @@ const handleRegister = () => {
       transform: translateY(0);
    }
 }
-:deep() {
-   .wd-input__inner {
-      margin-bottom: 1em;
+
+// 抖动动画（补充原缺失的动画定义）
+@keyframes shake {
+   0%,
+   100% {
+      transform: translateX(0);
+   }
+   20% {
+      transform: translateX(-6rpx);
+   }
+   40% {
+      transform: translateX(6rpx);
+   }
+   60% {
+      transform: translateX(-4rpx);
+   }
+   80% {
+      transform: translateX(4rpx);
    }
 }
+
+// 复选框样式（修复深度选择器语法）
+::v-deep checkbox .wx-checkbox-input.wx-checkbox-input-checked {
+   border: 1px solid var(--view-theme) !important;
+   background-color: var(--view-theme) !important;
+   width: 28rpx;
+   height: 28rpx;
+   font-size: 24rpx;
+   color: #fff !important;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+// 页面容器
+.wrapper {
+   background-color: #fff;
+   min-height: 100vh;
+   position: relative;
+   padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+// 背景图区域
+.bag {
+   position: absolute;
+   top: var(--status-bar-height);
+   left: 0;
+   width: 100%;
+   z-index: 0;
+   img {
+      width: 100%;
+      height: 544rpx;
+      object-fit: cover;
+      display: block;
+   }
+}
+
+// 页面信息区
+.page-msg {
+   padding-top: 160rpx;
+   margin-left: 72rpx;
+   z-index: 2;
+   position: relative;
+   max-width: calc(100% - 144rpx);
+
+   .title {
+      font-size: 48rpx;
+      font-weight: 500;
+      color: #333;
+      line-height: 68rpx;
+      margin: 0 0 16rpx 0;
+   }
+
+   .tip {
+      font-size: 28rpx;
+      font-weight: 400;
+      color: #666;
+      line-height: 40rpx;
+      margin: 0;
+   }
+}
+
+// 表单区域
+.page-form {
+   box-sizing: border-box;
+   width: 606rpx;
+   margin: 100rpx auto 0;
+   z-index: 2;
+   position: relative;
+
+   .item {
+      box-sizing: border-box;
+      width: 100%;
+      height: 88rpx;
+      background: #f5f5f5;
+      border-radius: 45rpx;
+      padding: 0 48rpx;
+      margin-bottom: 32rpx;
+      display: flex;
+      align-items: center;
+
+      input {
+         width: 100%;
+         height: 100%;
+         font-size: 32rpx;
+         background: transparent;
+         border: none;
+         outline: none;
+         color: #333;
+
+         &::placeholder {
+            color: #bbb;
+            font-size: 28rpx;
+         }
+      }
+   }
+
+   // 验证码输入框（修复类名拼写错误 codeIput → codeInput）
+   input.codeInput {
+      width: 300rpx;
+      margin-right: 24rpx;
+   }
+
+   .line {
+      width: 2rpx;
+      height: 28rpx;
+      background: #ccc;
+      margin: 0 16rpx;
+   }
+
+   .code {
+      font-size: 28rpx;
+      color: var(--view-theme);
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 0 8rpx;
+
+      &.on {
+         color: #bbb !important;
+         cursor: not-allowed;
+      }
+   }
+}
+
+// 标题栏（修复选择器，若为组件建议用类名）
+.title-bar {
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   height: 80rpx;
+   font-size: 34rpx;
+   font-weight: 500;
+   color: #333;
+   line-height: 48rpx;
+
+   .icon {
+      position: absolute;
+      left: 30rpx;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80rpx;
+      height: 80rpx;
+      cursor: pointer;
+
+      image {
+         width: 35rpx;
+         height: 35rpx;
+         object-fit: contain;
+      }
+   }
+}
+
+// 底部协议
+.protocol {
+   position: fixed;
+   bottom: 52rpx;
+   left: 0;
+   width: 100%;
+   margin: 0 auto;
+   color: #999;
+   font-size: 24rpx;
+   line-height: 36rpx;
+   text-align: center;
+   padding: 0 40rpx;
+   bottom: calc(52rpx + constant(safe-area-inset-bottom));
+   bottom: calc(52rpx + env(safe-area-inset-bottom));
+}
+
+// 主题色类
+.main-color {
+   color: var(--view-theme) !important;
+}
+
+// 抖动动画类
+.trembling {
+   animation: shake 0.6s ease-in-out;
+}
+
+// 第三方登录区域
+.appLogin {
+   margin-top: 60rpx;
+}
+
+.hds {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   font-size: 24rpx;
+   color: #b4b4b4;
+
+   .line {
+      width: 68rpx;
+      height: 1rpx;
+      background: #ccc;
+   }
+
+   p {
+      margin: 0 20rpx;
+   }
+}
+
+.btn-wrapper {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   margin-top: 30rpx;
+
+   .btn {
+      width: 68rpx;
+      height: 68rpx;
+      border-radius: 50%;
+      margin-right: 30rpx;
+      color: #fff;
+      font-size: 18rpx;
+      font-weight: 500;
+      margin-top: var(--status-bar-height);
+
+      &:last-child {
+         margin-right: 0;
+      }
+   }
+}
+
+// 第三方登录按钮背景色
+.wx {
+   background-color: #61c64f;
+   &:hover {
+      background-color: #55b540;
+   }
+}
+
+.mima {
+   background-color: #28b3e9;
+   &:hover {
+      background-color: #1a9ed8;
+   }
+}
+
+.yanzheng {
+   background-color: #f89c23;
+   &:hover {
+      background-color: #e78e12;
+   }
+}
+
+.pingguo {
+   background-color: #000;
+   &:hover {
+      background-color: #333;
+   }
+}
+
+// 淡入动画类
 .animate-fadeIn {
-   animation: fadeIn 0.3s ease-out;
+   animation: fadeIn 0.3s ease-out forwards;
 }
 </style>

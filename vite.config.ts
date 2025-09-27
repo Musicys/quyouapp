@@ -7,7 +7,7 @@ import { WotResolver } from '@uni-helper/vite-plugin-uni-components/resolvers';
 import eslintPlugin from 'vite-plugin-eslint';
 import tailwindcss from '@tailwindcss/vite';
 import TransformPages from 'uni-read-pages-vite';
-
+import AutoImport from 'unplugin-auto-import/vite';
 export default defineConfig({
    transpileDependencies: ['z-paging'],
    plugins: [
@@ -16,6 +16,11 @@ export default defineConfig({
       Components({
          resolvers: [WotResolver()]
       }),
+      AutoImport({
+         imports: ['vue', 'uni-app'], // 需要自动导入的插件
+         dts: 'types/auto-imports.d.ts' // 这里是生成的global函数文
+      }),
+
       eslintPlugin({
          include: ['src/**/*.js', 'src/**/*.vue', 'src/**/*.ts'], // 指定需要检查的文件
          exclude: ['node_modules/**', 'dist/**'], // 指定不需要检查的文件
@@ -42,8 +47,6 @@ export default defineConfig({
       }
    },
    server: {
-      host: 'localhost',
-      port: 9999,
       open: true,
       proxy: {
          '/api': {

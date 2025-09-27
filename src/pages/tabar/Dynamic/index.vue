@@ -17,7 +17,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import Dynamic from './components/Dynamic.vue';
 import Tag from './components/Tag.vue';
 const istab = ref(0);
@@ -40,9 +39,10 @@ const set = e => {
    }
    .wd-tabs__nav {
       position: fixed;
-      top: 0;
+      top: var(--status-bar-height);
       z-index: 1;
-      background: #ffe088;
+      background: $quyou-nav-bg-color;
+      height: $quyou-nav-height;
    }
    .zp-page-top {
       z-index: -1 !important;
@@ -50,11 +50,13 @@ const set = e => {
 }
 .page {
    position: relative;
+   padding-top: var(--status-bar-height); /* 状态栏 */
+   padding-bottom: env(safe-area-inset-bottom); /* 底部安全区 */
 }
 .but {
    position: fixed;
 
-   top: 0;
+   top: var(--status-bar-height);
    z-index: 99;
    right: 15rpx;
 }

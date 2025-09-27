@@ -1,10 +1,12 @@
 <template>
    <view class="page">
-      <wd-tabs v-model="tab">
+      <wd-tabs v-model="tab" swipeable>
          <block v-for="item in tabs" :key="item.value">
             <wd-tab :title="`${item.title}`" :name="item.value">
-               <view class="content" v-if="istab == 0"> 123 </view
-               ><view class="content" v-if="istab == 1"> 123 </view>
+               <view class="content" v-if="tab == 0"> <Alluser></Alluser> </view
+               ><view class="content" v-if="tab == 1">
+                  <Dicuser></Dicuser>
+               </view>
             </wd-tab>
          </block>
       </wd-tabs>
@@ -13,15 +15,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import Alluser from './components/Alluser.vue';
+import Dicuser from './components/Dicuser.vue';
+
 const tabs = ref([
    {
-      title: '附近',
+      title: '全部',
       value: '0'
    },
    {
-      title: '兴趣',
+      title: '附近',
       value: '1'
+   },
+   {
+      title: '兴趣',
+      value: '2'
    }
 ]);
 const tab = ref(0);
@@ -30,25 +38,34 @@ const tab = ref(0);
 <style lang="scss" scoped>
 :deep() {
    .wd-tabs__nav-container {
-      width: 250rpx;
+      width: 350rpx;
    }
    .is-active {
       font-size: 36rpx !important;
    }
    .wd-tabs__nav {
       position: fixed;
-      top: 0;
+      top: var(--status-bar-height);
       z-index: 1;
-      background: #ffe088;
+      background: $quyou-nav-bg-color;
+      height: $quyou-nav-height;
+   }
+   .zp-page-top {
+      z-index: -1 !important;
    }
 }
 .page {
    position: relative;
+   padding-top: var(--status-bar-height); /* 状态栏 */
+   padding-bottom: env(safe-area-inset-bottom); /* 底部安全区 */
+}
+.content {
+   background: linear-gradient(160deg, #f2e9d2, #fff);
 }
 .but {
    position: fixed;
 
-   top: 0;
+   top: var(--status-bar-height);
    z-index: 99;
    right: 15rpx;
 }

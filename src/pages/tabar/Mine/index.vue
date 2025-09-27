@@ -13,14 +13,19 @@
             <!-- 左侧头像和用户信息 -->
             <view class="!flex items-center">
                <image
-                  src="https://ts1.tc.mm.bing.net/th/id/OIP-C.-r8TdWtF72EheUNjt_uKvwAAAA?rs=1&pid=ImgDetMain&o=7&rm=3"
+                  :src="
+                     userStore.userInfo?.avatarUrl ||
+                     'https://ts1.tc.mm.bing.net/th/id/OIP-C.-r8TdWtF72EheUNjt_uKvwAAAA?rs=1&pid=ImgDetMain&o=7&rm=3'
+                  "
                   class="!w-20 !h-20 rounded-full border-4 border-white/30 object-cover"
                   mode="aspectFill" />
-               <view class="ml-4 text-white">
-                  <view class="text-xl font-bold">用户名称</view>
-                  <view class="text-white/80 text-sm mt-1"
-                     >user@example.com</view
-                  >
+               <view class="mr-4 text-white h-full">
+                  <view class="text-xl font-bold mb-0.5">{{
+                     userStore.userInfo?.username || '用户名称'
+                  }}</view>
+                  <view class="text-white/80 text-sm mt-1">{{
+                     userStore.userInfo?.email || 'user@example.com'
+                  }}</view>
                </view>
             </view>
 
@@ -144,6 +149,9 @@ import { useStore } from '@/store/user';
 const router = useRouter();
 const userStore = useStore();
 
+// 确保userStore.userInfo被正确使用
+// console.log(userStore.userInfo);
+
 // 处理各项点击事件
 const handleMatchClick = () => {
    // 跳转到匹配页面
@@ -205,6 +213,8 @@ const handleLogout = () => {
 <style lang="scss" scoped>
 .page {
    overflow: hidden;
+   padding-top: var(--status-bar-height); // 状态栏
+   padding-bottom: env(safe-area-inset-bottom); // 底部安全区
 }
 
 .cell-item {
@@ -224,6 +234,7 @@ const handleLogout = () => {
 // 添加卡片动画效果
 .card-hover {
    transition: all 0.3s ease;
+
    &:active {
       transform: scale(0.98);
    }

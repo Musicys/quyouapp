@@ -1,10 +1,11 @@
+<!-- 使用页面滚动示例 -->
 <template>
    <!-- 此时使用了页面的滚动，z-paging不需要有确定的高度，use-page-scroll需要设置为true -->
    <z-paging
       ref="paging"
       :refresher-enabled="false"
       v-model="dataList"
-      :use-safe-area-placeholder="true"
+      use-page-scroll
       @query="queryList">
       <template #top>
          <Navtop></Navtop>
@@ -14,7 +15,7 @@
          <NoData></NoData>
       </template>
       <view class="item" v-for="(item, index) in dataList" :key="index">
-         <DynamicCart :dynamic="item"></DynamicCart>
+         <HomeUserCart :data="item"></HomeUserCart>
       </view>
 
       <template #bottom> </template>
@@ -22,28 +23,23 @@
 </template>
 
 <script lang="ts" setup>
+import { UserListLongitude } from '@/api/system';
 import NoData from '@/components/no-data/index.vue';
-import { getDynamicList } from '@/api/dynamic';
+import HomeUserCart from '@/components/home-user-cart/index.vue';
 import { useStore } from '@/store/user';
 import Navtop from '@/components/nav-top/index.vue';
-import DynamicCart from '@/components/dynamic-cart/index.vue';
 const store = useStore();
 const paging = ref(null);
-
 let dataList = ref();
-
 const queryList = (page, pageSize) => {
-   getDynamicList({
-      page,
-      pageSize,
+   UserListLongitude({
+      page: page,
+      pageSize: pageSize,
       lat: store.userInfo.lat,
-      lng: store.userInfo.lng,
-      province: ''
+      lng: store.userInfo.lng
    }).then(res => {
-      // 模拟请求成功
-      if (res.code === 0) {
-         paging.value.complete(res.data);
-         console.log(res.data.length);
+      if (res.code == 0) {
+         paging.value.complete(res.data.userVOS);
       } else {
          paging.value.complete(false);
       }

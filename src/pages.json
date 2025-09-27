@@ -9,7 +9,7 @@
    },
    "pages": [
       {
-         "path": "pages/Login/index",
+         "path": "pages/login/index",
          "name": "login",
          "style": {
             "navigationStyle": "custom",
@@ -18,7 +18,23 @@
          }
       },
       {
-         "path": "pages/tabar/Home/index",
+         "path": "pages/chat/index",
+         "name": "chat",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "聊天室",
+            "navigationBarBackgroundColor": "#E7F0FF",
+            "app-plus": {
+               "softinputMode": "adjustResize",
+               "inputAccessoryView": false
+            },
+            "h5": {
+               "softinputMode": "adjustResize"
+            }
+         }
+      },
+      {
+         "path": "pages/tabar/home/index",
          "name": "home",
          "style": {
             "mp-alipay": {
@@ -29,7 +45,7 @@
          }
       },
       {
-         "path": "pages/tabar/Message/index",
+         "path": "pages/tabar/message/index",
          "name": "message",
          "style": {
             "mp-alipay": {
@@ -40,7 +56,7 @@
          }
       },
       {
-         "path": "pages/tabar/Dynamic/index",
+         "path": "pages/tabar/dynamic/index",
          "name": "dynamic",
          "style": {
             "mp-alipay": {
@@ -51,7 +67,7 @@
          }
       },
       {
-         "path": "pages/tabar/Mine/index",
+         "path": "pages/tabar/mine/index",
          "name": "mine",
          "style": {
             "mp-alipay": {
@@ -68,25 +84,25 @@
       "backgroundColor": "#ffffff",
       "list": [
          {
-            "pagePath": "pages/tabar/Home/index",
+            "pagePath": "pages/tabar/home/index",
             "iconPath": "static/tabar/home.png",
             "selectedIconPath": "static/tabar/home.png",
             "text": "主页"
          },
          {
-            "pagePath": "pages/tabar/Dynamic/index",
+            "pagePath": "pages/tabar/dynamic/index",
             "iconPath": "static/tabar/dynamic.png",
             "selectedIconPath": "static/tabar/dynamic.png",
             "text": "动态"
          },
          {
-            "pagePath": "pages/tabar/Message/index",
+            "pagePath": "pages/tabar/message/index",
             "iconPath": "static/tabar/message.png",
             "selectedIconPath": "static/tabar/message.png",
             "text": "消息"
          },
          {
-            "pagePath": "pages/tabar/Mine/index",
+            "pagePath": "pages/tabar/mine/index",
             "iconPath": "static/tabar/mine.png",
             "selectedIconPath": "static/tabar/mine.png",
             "text": "我的"
