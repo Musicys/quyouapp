@@ -25,7 +25,9 @@ export const sockeStore = defineStore(
             url: `ws://101.42.172.99:8080/api/websocket/${id}`, // WebSocket 地址
             // #endif
             // #ifdef H5
-            url: `ws://localhost:8080/api/websocket/${id}`, // WebSocket 地址
+            url:
+               import.meta.env.VITE_APP_WS_ADMIN_URL ||
+               `ws://${window.location.host}/api/websocket/${id}`, // WebSocket 地址
             // #endif
             success: () => {
                console.log('WebSocket 连接创建成功');

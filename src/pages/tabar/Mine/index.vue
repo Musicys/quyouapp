@@ -130,6 +130,13 @@
                   class="cell-item"
                   @click="handleAboutClick" />
             </view>
+            <view class="border-b border-gray-100" @click="handleLogout">
+               <wd-cell
+                  title="退出登录"
+                  icon="logout"
+                  :show-arrow="true"
+                  class="cell-item" />
+            </view>
 
             <wd-cell
                title="隐私政策"
@@ -143,49 +150,17 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRouter } from 'uni-mini-router';
 import { useStore } from '@/store/user';
-
+import { sockeStore } from '@/store/socke';
 const router = useRouter();
 const userStore = useStore();
+const { SocketTask } = sockeStore();
 
-// 确保userStore.userInfo被正确使用
-// console.log(userStore.userInfo);
-
-// 处理各项点击事件
-const handleMatchClick = () => {
-   // 跳转到匹配页面
-   router.push('/pages/match/index');
-};
-
-const handleActivityClick = () => {
-   // 跳转到活动页面
-   router.push('/pages/activity/index');
-};
-
-const handleCollectionClick = () => {
-   // 跳转到收藏页面
-   router.push('/pages/collection/index');
-};
-
-const handleSettingClick = () => {
-   // 跳转到设置页面
-   router.push('/pages/setting/index');
-};
-
-const handleHelpClick = () => {
-   // 跳转到客服页面
-   router.push('/pages/help/index');
-};
-
-const handleAboutClick = () => {
-   // 跳转到关于我们页面
-   router.push('/pages/about/index');
-};
-
-const handlePrivacyClick = () => {
-   // 跳转到隐私政策页面
-   router.push('/pages/privacy/index');
+const goBack = e => {
+   router.push({
+      name: e
+   });
 };
 
 // 退出登录处理
@@ -196,14 +171,13 @@ const handleLogout = () => {
       content: '确定要退出登录吗？',
       success: res => {
          if (res.confirm) {
-            // 调用退出登录接口
-            userStore.setUserInfo(null);
-            uni.showToast({
-               title: '退出成功',
-               icon: 'success'
+            SocketTask.close();
+            //端口 websoke
+            router.push({
+               path: '/pages/login/index'
             });
-            // 跳转到登录页面
-            router.replace('/pages/Login/index');
+
+            return;
          }
       }
    });

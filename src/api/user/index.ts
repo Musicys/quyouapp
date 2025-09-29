@@ -54,3 +54,12 @@ export const UserRegister = (data: {
 }) => {
    return HttpPost('/api/user/register', data);
 };
+
+/**
+ * @description 完善用户信息
+ * @param data
+ * @return Promise
+ */
+export const UserExit = (data: any) => {
+   return HttpPost('/api/user/exituser', data);
+};

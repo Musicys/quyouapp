@@ -9,11 +9,28 @@
    },
    "pages": [
       {
+         "path": "pages/start/index",
+         "style": {
+            "navigationBarTitleText": "趣友",
+            "navigationBarBackgroundColor": "#E7F0FF"
+         }
+      },
+
+      {
          "path": "pages/login/index",
          "name": "login",
          "style": {
             "navigationStyle": "custom",
             "navigationBarTitleText": "登录",
+            "navigationBarBackgroundColor": "#E7F0FF"
+         }
+      },
+      {
+         "path": "pages/login/personal/index",
+         "name": "personal",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "完善用户信息",
             "navigationBarBackgroundColor": "#E7F0FF"
          }
       },

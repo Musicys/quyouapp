@@ -9,8 +9,9 @@ const configs = {
 // 全局配置
 service.setConfig(config => {
    // #ifdef H5
-   // config.baseURL = import.meta.env.VITE_APP_BASE_API; // 根据环境变量设置基础 URL
-   config.baseURL = '/api/'; // 根据环境变量设置基础 URL
+   config.baseURL =
+      import.meta.env.VITE_APP_BASE_API || `${location.origin}/api`; // 根据环境变量设置基础 URL
+   // config.baseURL = '/api/'; // 根据环境变量设置基础 URL
    // #endif
    // #ifdef APP-PLUS
    config.baseURL = 'http://101.42.172.99:8080'; // 根据环境变量设置基础 URL
