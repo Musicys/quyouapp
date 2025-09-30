@@ -136,20 +136,14 @@ import { sockeStore } from '@/store/socke';
 const webstore = sockeStore();
 const router = useRouter();
 const store = useStore();
-
-// 登录方式切换
-const loginMethod = ref<'password' | 'verification'>('password'); // password: 密码登录, verification: 验证码注册
-
-// 切换登录方式
-const toggleLoginMethod = (method: 'password' | 'verification') => {
-   loginMethod.value = method;
-};
-
 // 登录表单数据
 const loginForm = reactive({
    userAccount: 'music123',
    userPassword: '12345678'
 });
+// 验证码倒计时
+const countdown = ref(0);
+let countdownTimer: number | null = null;
 
 // 注册表单数据
 const registerForm = reactive({
@@ -158,13 +152,23 @@ const registerForm = reactive({
    userAccount: '1411369154@qq.com',
    userPassword: '12345678'
 });
-
-// 验证码倒计时
-const countdown = ref(0);
-let countdownTimer: number | null = null;
-
+// 新增的辅助变量和方法
+const current = ref(false);
+const pageTitle = ref('账号登录');
+const isHome = ref(false);
+const colorStyle = ref({
+   '--view-theme': '#0BD9EE'
+});
 // 发送验证码
 type SendType = 'login' | 'register';
+// 登录方式切换
+const loginMethod = ref<'password' | 'verification'>('password');
+
+// 切换登录方式
+const toggleLoginMethod = (method: 'password' | 'verification') => {
+   loginMethod.value = method;
+};
+
 const sendVerificationCode = async () => {
    if (!registerForm.userAccount) {
       uni.showToast({
@@ -347,14 +351,6 @@ const handleRegister = async () => {
 
    // // 显示注册成功提示
 };
-
-// 新增的辅助变量和方法
-const current = ref(false);
-const pageTitle = ref('账号登录');
-const isHome = ref(false);
-const colorStyle = ref({
-   '--view-theme': '#0BD9EE'
-});
 
 const back = () => {
    router.back();

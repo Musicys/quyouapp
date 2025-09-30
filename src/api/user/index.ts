@@ -61,5 +61,5 @@ export const UserRegister = (data: {
  * @return Promise
  */
 export const UserExit = (data: any) => {
-   return HttpPost('/api/user/exituser', data);
+   return HttpPost('/api/user/exituser', data, true);
 };

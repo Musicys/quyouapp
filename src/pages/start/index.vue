@@ -57,7 +57,7 @@ const IslDing = ref(false);
 const Isyuedu = ref(false);
 const show = ref(false);
 let selectpath = '';
-
+onMounted(() => {});
 const change = () => {
    Isyuedu.value = !Isyuedu.value;
 };
@@ -73,8 +73,6 @@ const goLoginform = e => {
 const gohede = () => {
    router.push({ path: selectpath });
 };
-
-onMounted(() => {});
 </script>
 
 <style lang="scss" scoped>

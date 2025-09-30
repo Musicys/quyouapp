@@ -14,3 +14,7 @@ uni-page-wrapper {
 
    --quyou-nav-height: 95rpx; /*  */
 }
+.wd-img {
+   width: 100%;
+   height: 100%;
+}

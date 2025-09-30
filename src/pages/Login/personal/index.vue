@@ -20,42 +20,54 @@
 
                <!-- 头像上传 -->
                <view class="avatar-upload spaced">
-                  <wd-upload
-                     :value="userInfo.avatarUrl ? [userInfo.avatarUrl] : []"
-                     :max-count="1"
-                     :show-upload-list="false"
-                     :before-upload="handleAvatarUpload"
-                     @success="onAvatarUploadSuccess">
-                     <view class="avatar-preview">
-                        <image
-                           :src="userInfo.avatarUrl || defaultAvatar"
-                           mode="aspectFill"></image>
+                  <wd-img-cropper
+                     v-model="show"
+                     :img-src="src"
+                     @confirm="handleConfirm"
+                     @cancel="handleCancel">
+                  </wd-img-cropper>
+                  <view class="profile">
+                     <view v-if="!imgSrc" class="img" @click="upload">
+                        <wd-icon
+                           name="fill-camera"
+                           custom-class="img-icon"></wd-icon>
                      </view>
-                  </wd-upload>
+                     <wd-img
+                        v-if="imgSrc"
+                        round
+                        width="200px"
+                        height="200px"
+                        :src="imgSrc"
+                        mode="aspectFit"
+                        custom-class="profile-img"
+                        @click="upload" />
+                     <view style="font-size: 14px" v-if="!imgSrc"
+                        >点击上传头像</view
+                     >
+                  </view>
                </view>
 
                <!-- 名称输入 -->
                <view class="form-item spaced">
-                  <input
+                  <wd-input
+                     label="用户名称"
                      v-model="userInfo.name"
-                     type="text"
                      placeholder="请输入您的名称"
-                     placeholder-class="placeholder"
-                     class="input-field" />
+                     @clicksuffixicon="randedit"
+                     suffix-icon="refresh1" />
                </view>
 
                <!-- 年龄选择 -->
                <view class="form-item spaced">
-                  <input
-                     v-model.number="userInfo.age"
-                     type="number"
-                     placeholder="请输入您的年龄"
-                     placeholder-class="placeholder"
-                     class="input-field" />
+                  <wd-picker
+                     label="年龄选择"
+                     v-model="userInfo.age"
+                     :columns="agecolumns"
+                     title="年龄" />
                </view>
 
                <!-- 性别选择 -->
-               <view class="form-item spaced">
+               <view class="spaced">
                   <view class="gender-selector">
                      <view
                         :class="[
@@ -104,21 +116,22 @@
                <view class="step-title">完善个人展示</view>
 
                <!-- 相册上传 -->
+
                <view class="album-upload spaced">
                   <wd-upload
-                     v-model="userData.imagsarr"
-                     :max-count="9"
+                     :file-list="userData.imagsarr"
                      multiple
-                     :before-upload="handleAlbumUpload"
-                     @success="onAlbumUploadSuccess"
-                     @remove="onAlbumRemove"></wd-upload>
+                     :before-remove="removeImage"
+                     :upload-method="updateFileAarrhandleChange"
+                     action="https://mockapi.eolink.com/zhTuw2P8c29bc981a741931bdd86eb04dc1e8fd64865cb5/upload" />
                </view>
 
                <!-- 个人简介 -->
+
                <view class="form-item spaced">
                   <textarea
                      v-model="userData.introductory"
-                     placeholder="请输入个人简介"
+                     placeholder="请输入交友介绍"
                      placeholder-class="placeholder"
                      class="textarea-field"
                      rows="4"></textarea>
@@ -157,46 +170,99 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'uni-mini-router';
 import defaultAvatar from '@/static/imgs/bg.png';
+import { UserExit } from '@/api/user';
+import { agecolumns, getRandomNickname, base64ToFile } from './index';
+import { SystemTag } from '@/api/system';
 const router = useRouter();
+const src = ref<string>('');
+const imgSrc = ref<string>('');
+const show = ref<boolean>(false);
+// 可用标签列表
+const availableTags = ref<string[]>([]);
+onMounted(() => {
+   SystemTag({
+      current: 1,
+      pageSize: 50,
+      sortField: '',
+      sortOrder: '',
+      tagName: ''
+   }).then(res => {
+      if (res.code === 0) {
+         availableTags.value = res.data.records.map(item => {
+            console.log(item.tagname);
 
+            return item.tagname;
+         });
+         console.log(availableTags.value);
+      }
+   });
+});
+
+function upload() {
+   uni.chooseImage({
+      count: 1,
+      success: res => {
+         const tempFilePaths = res.tempFilePaths[0];
+         src.value = tempFilePaths;
+         show.value = true;
+      }
+   });
+}
+function handleConfirm(event) {
+   const { tempFilePath } = event;
+   imgSrc.value = tempFilePath;
+   // 将base64编码的字符串转换为File对象
+   const file = base64ToFile(tempFilePath, 'avatar.png', 'image/png');
+
+   userInfo.avatarUrl = file;
+}
+function imgLoaderror(res) {
+   console.log('加载失败', res);
+}
+function imgLoaded(res) {
+   console.log('加载成功', res);
+}
+function handleCancel(event) {
+   console.log('取消', event);
+}
 // 当前步骤
 const step = ref(1);
 
 // 基本信息
 const userInfo = reactive({
-   name: '很帅的人',
-   avatarUrl: '',
-   age: 18,
-   gender: 1
+   name: '',
+   avatarUrl: null,
+   age: null,
+   gender: 0
 });
 
 // 选择的标签
 const selectedTags = ref<string[]>([]);
 
-// 可用标签列表
-const availableTags = [
-   'java',
-   'python',
-   '前端',
-   '后端',
-   '人工智能',
-   '摄影',
-   '音乐',
-   '旅行',
-   '美食',
-   '运动',
-   '电影',
-   '读书',
-   '游戏',
-   '健身',
-   '宠物',
-   '舞蹈',
-   '绘画',
-   '编程'
-];
+const randedit = () => {
+   userInfo.name = getRandomNickname();
+};
+// 移除图片
+function removeImage(index: number) {
+   userData.imagsarr.splice(index.index, 1);
+}
+//照片墙上传
+const updateFileAarrhandleChange = (file, formData, options) => {
+   options?.onSuccess(
+      {
+         data: {
+            url: file.url
+         }
+      },
+      file,
+      formData
+   );
+
+   userData.imagsarr.push(file);
+};
 
 // 个人数据
 const userData = reactive({
@@ -204,17 +270,6 @@ const userData = reactive({
    imagsarr: [] as string[],
    introductory: ''
 });
-
-// 处理头像上传
-function handleAvatarUpload(e: any) {
-   // 返回true以允许上传
-   return true;
-}
-
-// 头像上传成功回调
-function onAvatarUploadSuccess(res: any) {
-   userInfo.avatarUrl = res.data.url;
-}
 
 // 切换标签选择
 function toggleTag(tag: string) {
@@ -228,7 +283,7 @@ function toggleTag(tag: string) {
 
 // 获取标签样式（实现飘动效果）
 function getTagStyle(tag: string) {
-   const index = availableTags.indexOf(tag);
+   const index = availableTags.value.indexOf(tag);
    const randomTop = Math.sin(index) * 10;
    const animationDelay = index * 0.1;
 
@@ -236,30 +291,6 @@ function getTagStyle(tag: string) {
       transform: `translateY(${randomTop}px)`,
       animationDelay: `${animationDelay}s`
    };
-}
-
-// 处理相册上传
-function handleAlbumUpload(e: any) {
-   // 返回true以允许上传
-   return true;
-}
-
-// 相册上传成功回调
-function onAlbumUploadSuccess(res: any) {
-   // 假设res.data包含上传后的图片列表
-   if (Array.isArray(res.data)) {
-      userData.imagsarr = [...userData.imagsarr, ...res.data];
-   }
-}
-
-// 相册移除回调
-function onAlbumRemove(e: any) {
-   // 已经由组件内部处理，这里可以添加额外的逻辑
-}
-
-// 移除图片
-function removeImage(index: number) {
-   userData.imagsarr.splice(index, 1);
 }
 
 // 返回上一步
@@ -287,12 +318,15 @@ function skipStep() {
 }
 
 // 完成所有步骤
-function complete() {
+async function complete() {
    // 这里可以发送完整的用户信息到后端
-   console.log('完整用户信息:', { ...userInfo, ...userData });
+   //上传头像
+   //上传相册
+   //修改用户信息
+   // 这里可以发送完整的用户信息到后端
+   Promise.all([]);
 
    // 跳转到首页或其他页面
-   router.push('/pages/tabar/index');
 }
 </script>
 
@@ -409,6 +443,9 @@ function complete() {
 
 .form-item {
    margin-bottom: 40rpx;
+   background: #fff;
+   border-radius: 10rpx;
+   overflow: hidden;
 }
 
 .input-field {
@@ -430,6 +467,7 @@ function complete() {
    flex: 1;
    height: 88rpx;
    border: 2rpx solid #eee;
+   background: #fff;
    border-radius: 10rpx;
    display: flex;
    align-items: center;
@@ -450,18 +488,19 @@ function complete() {
    display: flex;
    flex-wrap: wrap;
    gap: 20rpx;
+   justify-content: space-between;
    padding: 20rpx;
 }
 
 .tag-item {
-   padding: 20rpx 36rpx;
+   padding: 20rpx 16rpx;
    border-radius: 40rpx;
    background-color: #fff;
    border: 2rpx solid #eee;
-   font-size: 28rpx;
+   font-size: 22rpx;
    color: #333;
    transition: all 0.3s;
-   animation: float 3s ease-in-out infinite;
+   animation: float 4s ease-in-out infinite;
 }
 
 @keyframes float {
@@ -476,7 +515,7 @@ function complete() {
 
 .tag-item.selected {
    background-color: #0bdaee;
-   color: #fff;
+   color: black;
    border-color: #0bdaee;
 }
 
@@ -485,7 +524,9 @@ function complete() {
    display: flex;
    flex-wrap: wrap;
    gap: 20rpx;
-   margin-bottom: 40rpx;
+
+   background: #fff;
+   padding: 20rpx 20rpx;
 }
 
 .album-item {
@@ -582,5 +623,16 @@ function complete() {
 
 .placeholder {
    color: #999;
+}
+.profile {
+   width: 250rpx;
+   height: 250rpx;
+   background: #fff;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   overflow: hidden;
+   border-radius: 50%;
 }
 </style>

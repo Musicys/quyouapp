@@ -30,3 +30,18 @@ export const UserList = (data: {
 }) => {
    return HttpPost('/api/user/userlist', data);
 };
+
+/**
+ * @description 系统标签
+ * @param data    { page: number; pageSize: number; }
+ * @returns Promise
+ */
+export const SystemTag = (data: {
+   current: number;
+   pageSize: number;
+   sortField: string;
+   sortOrder: string;
+   tagName: string;
+}) => {
+   return HttpPost('/api/system/usertaglist', data);
+};

@@ -181,12 +181,22 @@ import { nextTick, onMounted, ref, watch } from 'vue';
 import { sockeStore } from '@/store/socke';
 import { useStore } from '@/store/user';
 import { UpdateSendsye } from '@/api/wbscoke';
+
 const { userInfo } = useStore();
 const soke = sockeStore();
 const { send, UserList } = soke;
 const route = useRoute();
 const router = useRouter();
-
+// 消息列表
+const messages = ref([]);
+const bottomsize = ref<number>(0);
+// 输入相关
+const inputValue = ref('');
+const inputType = ref('text'); // text/voice
+const showEmojiPanel = ref(false);
+// 关注相关
+const isFollowed = ref(false);
+const followText = ref(isFollowed.value ? '已关注' : '关注');
 // 好友信息
 const friendInfo = ref({
    avatarUrl: '',
@@ -196,9 +206,32 @@ const friendInfo = ref({
    sendList: [],
    id: ''
 });
-// 消息列表
-const messages = ref([]);
-const bottomsize = ref<number>(0);
+onMounted(() => {
+   const sendid = route.query.sendid || '';
+
+   try {
+      // 尝试从store获取用户信息
+      const index = UserList.findIndex(item => item.id == sendid);
+      if (sendid !== '' && index !== -1) {
+         UpdateSendsye(sendid).then(res => {
+            console.log(res);
+         });
+         friendInfo.value = UserList[index];
+      }
+      updateMessages();
+   } catch (error) {
+      console.error('处理用户数据失败:', error);
+   }
+});
+// 监听sendList变化
+watch(
+   () => UserList,
+   () => {
+      updateMessages();
+   },
+   { deep: true }
+);
+
 // 滚动到底部函数
 const scrollToBottom = () => {
    nextTick(() => {
@@ -240,15 +273,6 @@ const updateMessages = () => {
    scrollToBottom();
 };
 
-// 监听sendList变化
-watch(
-   () => UserList,
-   () => {
-      updateMessages();
-   },
-   { deep: true }
-);
-
 // 格式化时间
 const formatTime = timeStr => {
    try {
@@ -266,14 +290,6 @@ const formatTime = timeStr => {
       return timeStr;
    }
 };
-
-// 输入相关
-const inputValue = ref('');
-const inputType = ref('text'); // text/voice
-const showEmojiPanel = ref(false);
-// 关注相关
-const isFollowed = ref(false);
-const followText = ref(isFollowed.value ? '已关注' : '关注');
 
 // 返回
 const goBack = () => {
@@ -398,23 +414,6 @@ const showMoreFunc = () => {
       }
    });
 };
-onMounted(() => {
-   const sendid = route.query.sendid || '';
-
-   try {
-      // 尝试从store获取用户信息
-      const index = UserList.findIndex(item => item.id == sendid);
-      if (sendid !== '' && index !== -1) {
-         UpdateSendsye(sendid).then(res => {
-            console.log(res);
-         });
-         friendInfo.value = UserList[index];
-      }
-      updateMessages();
-   } catch (error) {
-      console.error('处理用户数据失败:', error);
-   }
-});
 </script>
 
 <style lang="scss" scoped>

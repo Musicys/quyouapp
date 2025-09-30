@@ -20,7 +20,10 @@ export const HttpGet = (url: string, params: any) => {
 export const HttpPost = (url: string, data: any, File: boolean = false) => {
    if (File) {
       return service.post(url, data, {
-         headers: { 'Content-Type': 'multipart/form-data' }
+         header: {
+            'Content-Type': 'multipart/form-data'
+            // ces: 123
+         }
       });
    }
 
