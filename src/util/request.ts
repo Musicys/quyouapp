@@ -1,6 +1,7 @@
 // src/http.js
 import Request from 'luch-request';
 const service = new Request();
+import { baseURL } from '@/util/system/CONFIG';
 
 const configs = {
    cookie: null
@@ -8,14 +9,7 @@ const configs = {
 
 // 全局配置
 service.setConfig(config => {
-   // #ifdef H5
-   config.baseURL =
-      import.meta.env.VITE_APP_BASE_API || `${location.origin}/api`; // 根据环境变量设置基础 URL
-   // config.baseURL = '/api/'; // 根据环境变量设置基础 URL
-   // #endif
-   // #ifdef APP-PLUS
-   config.baseURL = 'http://101.42.172.99:8080'; // 根据环境变量设置基础 URL
-   // #endif
+   config.baseURL = baseURL;
 
    config.timeout = 25000; // 设置超时时间
    config.withCredentials = true; // 跨域请求时是否携带凭证（cookies）

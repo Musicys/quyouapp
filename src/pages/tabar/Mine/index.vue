@@ -2,7 +2,7 @@
    <view class="page">
       <!-- 顶部用户信息卡片 -->
       <view
-         class="bg-gradient-to-r from-pink-500 to-purple-500 rounded-b-3xl p-6 relative overflow-hidden">
+         class="bg-gradient-to-r from-pink-500 to-purple-500 p-6 relative overflow-hidden">
          <!-- 装饰性圆点 -->
          <view
             class="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full"></view>
@@ -37,26 +37,24 @@
          </view>
 
          <!-- 用户数据统计 -->
-         <view class="!flex justify-around mt-8">
-            <view class="text-center text-white">
+         <view class="!flex justify-around mt-8 cart">
+            <view class="text-center">
                <view class="text-2xl font-bold">24</view>
-               <view class="text-xs mt-1 text-white/80">匹配成功</view>
+               <view class="text-xs mt-1">匹配成功</view>
             </view>
-            <view class="text-center text-white">
+            <view class="text-center">
                <view class="text-2xl font-bold">128</view>
-               <view class="text-xs mt-1 text-white/80">收到消息</view>
+               <view class="text-xs mt-1">收到消息</view>
             </view>
-            <view class="text-center text-white">
+            <view class="text-center">
                <view class="text-2xl font-bold">56</view>
-               <view class="text-xs mt-1 text-white/80">活动参与</view>
+               <view class="text-xs mt-1">活动参与</view>
             </view>
          </view>
       </view>
 
       <!-- 选项卡列表 -->
-      <view class="mt-4 px-4">
-         <text class="text-gray-600 text-sm font-medium">我的服务</text>
-
+      <view class="!mt-4 px-4">
          <view class="bg-white rounded-xl mt-2 overflow-hidden shadow-sm">
             <view class="border-b border-gray-100">
                <wd-cell
@@ -100,9 +98,7 @@
       </view>
 
       <!-- 系统设置和客服帮助 -->
-      <view class="mt-4 px-4">
-         <text class="text-gray-600 text-sm font-medium">系统服务</text>
-
+      <view class="!mt-4 px-4">
          <view class="bg-white rounded-xl mt-2 overflow-hidden shadow-sm">
             <view class="border-b border-gray-100">
                <wd-cell
@@ -189,6 +185,13 @@ const handleLogout = () => {
    overflow: hidden;
    padding-top: var(--status-bar-height); // 状态栏
    padding-bottom: env(safe-area-inset-bottom); // 底部安全区
+}
+.cart {
+   background: #fff;
+   color: black;
+   margin-top: 1em;
+   padding: 10rpx 20rpx;
+   border-radius: 15rpx;
 }
 
 .cell-item {

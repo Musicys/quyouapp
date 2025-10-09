@@ -61,5 +61,14 @@ export const UserRegister = (data: {
  * @return Promise
  */
 export const UserExit = (data: any) => {
-   return HttpPost('/api/user/exituser', data, true);
+   return HttpPost('/api/user/exituser', data);
+};
+
+/**
+ * @description 更新用户经度
+ * @param data
+ * @return Promise
+ */
+export const UserUpdateLongitude = (data: { lnt: number; lat: number }) => {
+   return HttpPost('/api/user/updateLongitude', data);
 };

@@ -2,6 +2,9 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { User } from '@/api/user/model/type';
 import { UserLogin } from '@/api/user';
+import { UserUpdateLongitude } from '@/api/user';
+import router from '@/router';
+
 export const useStore = defineStore(
    'user',
    () => {
@@ -9,16 +12,45 @@ export const useStore = defineStore(
       const Tokens = ref<User[]>([]);
       const location = ref<{
          lat: number;
-         lnt: number;
+         lng: number;
       }>({
          lat: 0,
-         lnt: 0
+         lng: 0
       }); //经纬度
+
+      const setLocation = () => {
+         console.log('ces==》');
+         uni.getLocation({
+            type: 'wgs84',
+            success: function (res) {
+               location.value.lat = res.latitude;
+               location.value.lng = res.longitude;
+
+               UserUpdateLongitude({
+                  lat: res.latitude,
+                  lng: res.longitude
+               }).then(res => {
+                  if (res.code == 0) {
+                     //更新成功
+                     setUserInfo(res.data);
+                  }
+               });
+            },
+            fail: function (res) {
+               console.log('获取位置失败', res);
+            }
+         });
+      };
 
       const setUserInfo = (val: User) => {
          userInfo.value = val;
          location.value.lat = userInfo.value.lat;
          location.value.lnt = userInfo.value.lnt;
+         if (userInfo.value.username == null) {
+            router.push({
+               path: '/pages/login/personal/index'
+            });
+         }
       };
 
       const setTokens = (val: User) => {
@@ -49,7 +81,15 @@ export const useStore = defineStore(
             });
          }
       };
-      return { userInfo, setUserInfo, Tokens, setTokens, autoLogin, location };
+      return {
+         userInfo,
+         setUserInfo,
+         Tokens,
+         setTokens,
+         autoLogin,
+         location,
+         setLocation
+      };
    },
    {
       unistorage: true // 开启后对 state 的数据读写都将持久化

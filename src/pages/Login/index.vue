@@ -287,6 +287,7 @@ const handleLogin = () => {
    UserLogin(loginForm).then(res => {
       if (res.code == 0) {
          store.setUserInfo(res.data);
+         store.setLocation();
          store.setTokens({ ...res.data, tokens: loginForm, is_default: 1 });
          if (webstore.$state.SocketTask) {
             webstore.$state.SocketTask.close(); //关闭连接

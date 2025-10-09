@@ -4,8 +4,11 @@
       "navigationBarTitleText": "Uni App",
       "navigationBarBackgroundColor": "#F8F8F8",
       "backgroundColor": "#F8F8F8",
-
-      "navigationStyle": "custom"
+      "navigationStyle": "custom",
+      "app-plus": {
+         "softinputMode": "adjustResize",
+         "inputAccessoryView": false
+      }
    },
    "pages": [
       {
@@ -81,6 +84,28 @@
             },
             "navigationStyle": "custom",
             "navigationBarTitleText": "动态"
+         }
+      },
+      {
+         "path": "pages/tabar/dynamic/datails/index",
+         "name": "dynamicDetails",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "动态详情"
+         }
+      },
+      {
+         "path": "pages/tabar/dynamic/sumbitfrom/index",
+         "name": "dynamicSubmit",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "发送动态"
          }
       },
       {

@@ -119,7 +119,7 @@
 
                <view class="album-upload spaced">
                   <wd-upload
-                     :file-list="userData.imagsarr"
+                     :file-list="imagsarr"
                      multiple
                      :before-remove="removeImage"
                      :upload-method="updateFileAarrhandleChange"
@@ -166,6 +166,7 @@
       <view v-if="step > 1" class="back-button-container" @click="goBack">
          上一步
       </view>
+      <wd-toast />
    </view>
 </template>
 
@@ -173,15 +174,40 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'uni-mini-router';
 import defaultAvatar from '@/static/imgs/bg.png';
-import { UserExit } from '@/api/user';
+import { UserExit, UserUpdateLongitude } from '@/api/user';
 import { agecolumns, getRandomNickname, base64ToFile } from './index';
 import { SystemTag } from '@/api/system';
+import { updateOssFile } from '@/api/file';
+import { useStore } from '@/store/user';
+
+const store = useStore();
 const router = useRouter();
 const src = ref<string>('');
 const imgSrc = ref<string>('');
 const show = ref<boolean>(false);
+// 基本信息
+const userInfo = reactive({
+   name: '',
+   avatarUrl: null,
+   age: null,
+   gender: 0
+});
 // 可用标签列表
 const availableTags = ref<string[]>([]);
+// 当前步骤
+const step = ref(1);
+
+// 选择的标签
+const selectedTags = ref<string[]>([]);
+const avatarUrl = ref<File>(null);
+const imagsarr = ref<File[]>([]);
+
+// 个人数据
+const userData = reactive({
+   tag: [] as string[],
+   imagsarr: [] as string[],
+   introductory: ''
+});
 onMounted(() => {
    SystemTag({
       current: 1,
@@ -192,11 +218,8 @@ onMounted(() => {
    }).then(res => {
       if (res.code === 0) {
          availableTags.value = res.data.records.map(item => {
-            console.log(item.tagname);
-
             return item.tagname;
          });
-         console.log(availableTags.value);
       }
    });
 });
@@ -217,7 +240,7 @@ function handleConfirm(event) {
    // 将base64编码的字符串转换为File对象
    const file = base64ToFile(tempFilePath, 'avatar.png', 'image/png');
 
-   userInfo.avatarUrl = file;
+   avatarUrl.value = file;
 }
 function imgLoaderror(res) {
    console.log('加载失败', res);
@@ -228,26 +251,15 @@ function imgLoaded(res) {
 function handleCancel(event) {
    console.log('取消', event);
 }
-// 当前步骤
-const step = ref(1);
-
-// 基本信息
-const userInfo = reactive({
-   name: '',
-   avatarUrl: null,
-   age: null,
-   gender: 0
-});
-
-// 选择的标签
-const selectedTags = ref<string[]>([]);
 
 const randedit = () => {
    userInfo.name = getRandomNickname();
 };
 // 移除图片
 function removeImage(index: number) {
-   userData.imagsarr.splice(index.index, 1);
+   imagsarr.value.splice(index, 1);
+   userData.imagsarr.splice(index, 1);
+   console.log(userData.imagsarr);
 }
 //照片墙上传
 const updateFileAarrhandleChange = (file, formData, options) => {
@@ -261,15 +273,8 @@ const updateFileAarrhandleChange = (file, formData, options) => {
       formData
    );
 
-   userData.imagsarr.push(file);
+   imagsarr.value.push(file);
 };
-
-// 个人数据
-const userData = reactive({
-   tag: [] as string[],
-   imagsarr: [] as string[],
-   introductory: ''
-});
 
 // 切换标签选择
 function toggleTag(tag: string) {
@@ -303,6 +308,21 @@ function goBack() {
 // 下一步
 function nextStep() {
    if (step.value === 1) {
+      if (!userInfo.name) {
+         uni.showToast({
+            title: '请输入姓名',
+            icon: 'none'
+         });
+         return;
+      }
+      if (!userInfo.age) {
+         uni.showToast({
+            title: '请选择年龄',
+            icon: 'none'
+         });
+         return;
+      }
+
       // 保存基本信息
    } else if (step.value === 2) {
       // 保存选择的标签
@@ -314,19 +334,83 @@ function nextStep() {
 
 // 跳过步骤
 function skipStep() {
+   if (step.value === 1) {
+      if (!userInfo.name) {
+         uni.showToast({
+            title: '请输入姓名',
+            icon: 'none'
+         });
+         return;
+      }
+      if (!userInfo.age) {
+         uni.showToast({
+            title: '请选择年龄',
+            icon: 'none'
+         });
+         return;
+      }
+   }
    step.value++;
 }
 
 // 完成所有步骤
 async function complete() {
-   // 这里可以发送完整的用户信息到后端
-   //上传头像
-   //上传相册
-   //修改用户信息
-   // 这里可以发送完整的用户信息到后端
-   Promise.all([]);
+   //前端数据请求时，显示加载提示弹框
+   uni.showLoading({
+      title: '初始化数据中...'
+   });
 
-   // 跳转到首页或其他页面
+   //上传相册
+   if (imagsarr.value.length > 0) {
+      const rucest = [];
+
+      for (let file of imagsarr.value) {
+         let res = updateOssFile(file.thumb);
+         rucest.push(res);
+      }
+
+      //上传相册
+      await Promise.all(rucest).then(res => {
+         for (let records of res) {
+            let data = JSON.parse(records?.data);
+            if (data.code === 0) {
+               userData.imagsarr.push(data.data);
+            }
+         }
+      });
+   }
+
+   //上传头像
+   if (avatarUrl.value) {
+      let res = await uni.uploadFile({
+         url: '/api/api/file',
+         formData: {
+            tagId: 9,
+            file: avatarUrl.value
+         }
+      });
+      let data = JSON.parse(res?.data);
+      if (data.code === 0) {
+         userInfo.avatarUrl = data.data;
+      }
+   }
+
+   let res = await UserExit({
+      ...userInfo,
+      ...userData,
+      tag: userData.tag.length > 0 ? JSON.stringify(userData.tag) : null,
+      imagsarr:
+         userData.imagsarr.length > 0 ? JSON.stringify(userData.imagsarr) : null
+   });
+
+   if (res.code === 0) {
+      uni.hideLoading();
+      store.setUserInfo(res.data);
+      store.setLocation();
+      router.pushTab({
+         path: '/pages/tabar/home/index'
+      });
+   }
 }
 </script>
 

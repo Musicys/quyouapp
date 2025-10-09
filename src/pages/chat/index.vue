@@ -184,7 +184,7 @@ import { UpdateSendsye } from '@/api/wbscoke';
 
 const { userInfo } = useStore();
 const soke = sockeStore();
-const { send, UserList } = soke;
+const { send, UserList, setyellow } = soke;
 const route = useRoute();
 const router = useRouter();
 // 消息列表
@@ -214,7 +214,9 @@ onMounted(() => {
       const index = UserList.findIndex(item => item.id == sendid);
       if (sendid !== '' && index !== -1) {
          UpdateSendsye(sendid).then(res => {
-            console.log(res);
+            if (res.code == 0) {
+               setyellow(userInfo.id, sendid);
+            }
          });
          friendInfo.value = UserList[index];
       }
@@ -381,7 +383,7 @@ const handleClickLeft = () => {
 // 打开图片选择器
 const openImagePicker = () => {
    uni.chooseImage({
-      count: 1,
+      count: 3,
       success: res => {
          const tempFilePath = res.tempFilePaths[0];
          // 在实际应用中，这里应该调用API发送图片，然后等待friendInfo.value.sendList更新
@@ -424,6 +426,8 @@ $online-green: #52c41a;
 
 .chat-page {
    display: flex;
+   padding-top: var(--status-bar-height); /* 状态栏 */
+   padding-bottom: env(safe-area-inset-bottom); /* 底部安全区 */
    flex-direction: column;
    width: 100vw;
    height: 100vh;

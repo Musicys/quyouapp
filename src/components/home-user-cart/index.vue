@@ -25,7 +25,9 @@
                   </text>
                </view>
                <!-- 右侧操作按钮 -->
-               <wd-button plain size="small" class="btn-text">发消息</wd-button>
+               <wd-button plain size="small" @click="gosend" class="btn-text">{{
+                  IsAdd ? '发送消息' : '添加好友'
+               }}</wd-button>
             </view>
 
             <!-- 第二行：年龄和地区 -->
@@ -58,10 +60,17 @@
 
 <script setup lang="ts">
 import { User } from '@/api/user/model/type';
+import { useRouter } from 'uni-mini-router';
+import { sockeStore } from '@/store/socke';
+import { useStore } from '@/store/user';
+const store = useStore();
+const { IsFriend, send } = sockeStore();
+const router = useRouter();
 // 接收父组件传递的用户数据
 const props = defineProps<{
    data: User;
 }>();
+const IsAdd = ref(false);
 
 // 解析图片数组
 const imageList = computed(() => {
@@ -70,6 +79,28 @@ const imageList = computed(() => {
    } catch (e) {
       return [];
    }
+});
+
+const gosend = () => {
+   if (IsAdd.value) {
+      router.push({ name: 'chat', params: { sendid: props.data.id } });
+   } else {
+      send(
+         JSON.stringify({
+            id: store.userInfo.id,
+            type: 4,
+            sendid: props.data.id,
+            sendteam: null,
+            context: '你好啊，我们开始聊天把-.-',
+            sendTime: new Date()
+         })
+      );
+      IsAdd.value = true;
+      router.push({ name: 'chat', params: { sendid: props.data.id } });
+   }
+};
+onMounted(() => {
+   IsAdd.value = IsFriend(props.data.id);
 });
 </script>
 
@@ -178,7 +209,7 @@ const imageList = computed(() => {
 
          .image-item {
             width: 33%;
-
+            aspect-ratio: 1 / 1;
             border-radius: 8rpx;
          }
       }

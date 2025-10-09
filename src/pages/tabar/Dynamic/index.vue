@@ -12,13 +12,18 @@
             </wd-tab>
          </block>
       </wd-tabs>
-      <view class="but"> <wd-icon name="chat" size="22px"></wd-icon> </view>
+      <view class="but"> <wd-icon name="chat" size="16px"></wd-icon> </view>
+      <view class="post-btn" @tap="toSubmit">
+         <wd-icon name="edit" size="20px" color="#fff"></wd-icon>
+      </view>
    </view>
 </template>
 
 <script setup lang="ts">
 import Dynamic from './components/Dynamic.vue';
 import Tag from './components/Tag.vue';
+import { useRouter } from 'uni-mini-router';
+const router = useRouter();
 const istab = ref(0);
 const tab = ref([
    { title: '动态', name: '0' },
@@ -26,6 +31,11 @@ const tab = ref([
 ]);
 const set = e => {
    console.log(e);
+};
+const toSubmit = () => {
+   router.push({
+      path: '/pages/tabar/dynamic/sumbitfrom/index'
+   });
 };
 </script>
 
@@ -59,5 +69,21 @@ const set = e => {
    top: var(--status-bar-height);
    z-index: 99;
    right: 15rpx;
+}
+
+/* 发送动态悬浮按钮 */
+.post-btn {
+   position: fixed;
+   bottom: 120rpx;
+   right: 30rpx;
+   z-index: 99;
+   width: 80rpx;
+   height: 80rpx;
+   border-radius: 50%;
+   background-color: #0bdaee;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   box-shadow: 0 4rpx 16rpx rgba(11, 218, 238, 0.3);
 }
 </style>

@@ -10,9 +10,9 @@ onLaunch(async () => {
    //初始化登录
 
    await store.autoLogin(() => {
-      // router.pushTab({
-      //    path: '/pages/tabar/home/index'
-      // });
+      router.pushTab({
+         path: '/pages/tabar/home/index'
+      });
       websocket.websocke(store.userInfo.id);
    });
 });

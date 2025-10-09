@@ -2,11 +2,15 @@
    <view class="dynamic-card">
       <!-- 头像区域 -->
       <view class="avatar-container">
-         <image
-            class="avatar"
-            :src="dynamic.avatarUrl"
-            mode="widthFix"
-            alt="用户头像"></image>
+         <view class="box">
+            <image
+               class="avatar"
+               :src="dynamic.avatarUrl"
+               mode="widthFix"
+               alt="用户头像"></image>
+            <!-- 在线状态绿圈 -->
+            <view v-if="dynamic.login === 1" class="online-status"></view>
+         </view>
       </view>
 
       <!-- 内容区域 -->
@@ -15,14 +19,14 @@
          <view class="user-info-row">
             <view class="user-info">
                <view class="top">
-                  <text class="username">{{ dynamic.userAccount }}</text>
+                  <text class="username">{{ dynamic.username }}</text>
                   <text class="ip-location"> IP: {{ dynamic.province }} </text>
                   <text class="location">
                      {{ dynamic.district }}
                   </text>
                   <text class="same-city" v-if="isSameCity"> (同城) </text>
                </view>
-               <view class="time"> 5小时前发布 </view>
+               <view class="time"> {{ formattedTime }} </view>
             </view>
             <wd-button plain size="small">
                {{ dynamic.isFollowed ? '已关注' : '关注' }}</wd-button
@@ -39,10 +43,7 @@
             <view
                class="image-item"
                v-for="(img, index) in imageList"
-               :key="index"
-               :style="{
-                  width: `calc(100% / ${Math.min(imageList.length, 3)})`
-               }">
+               :key="index">
                <image
                   :src="img"
                   mode="widthFix"
@@ -82,6 +83,9 @@
 <script setup lang="ts">
 import { useStore } from '@/store/user';
 import { Dynamic } from '@/api/dynamic/model/type';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 const store = useStore();
 
 const props = defineProps<{
@@ -134,9 +138,46 @@ const handleLike = () => {
 
 // 评论
 const handleComment = () => {
-   console.log(`评论动态: ${props.dynamic.id}`);
+   router.push({
+      path: '/pages/tabar/dynamic/datails/index',
+      query: {
+         dynamicId: props.dynamic.id
+      }
+   });
    // 实际项目中会跳转到评论页面或弹出评论框
 };
+
+// 格式化时间
+const formattedTime = computed(() => {
+   if (!props.dynamic.createTime) return '';
+
+   // 解析时间字符串为Date对象
+   const createTime = new Date(props.dynamic.createTime);
+   const now = new Date();
+   const diffInSeconds = Math.floor(
+      (now.getTime() - createTime.getTime()) / 1000
+   );
+
+   // 判断时间差
+   if (diffInSeconds < 60) {
+      // 小于1分钟
+      return '刚刚';
+   } else if (diffInSeconds < 3600) {
+      // 小于1小时
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes}分钟前`;
+   } else if (diffInSeconds < 86400) {
+      // 小于24小时
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours}小时前`;
+   } else {
+      // 24小时及以上，显示年月日
+      const year = createTime.getFullYear();
+      const month = String(createTime.getMonth() + 1).padStart(2, '0');
+      const day = String(createTime.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+   }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -152,13 +193,28 @@ const handleComment = () => {
    .avatar-container {
       margin-right: 16rpx;
       flex-shrink: 0;
-
+      position: relative;
+      .box {
+         position: relative;
+      }
       .avatar {
          width: 80rpx;
          height: 80rpx;
          border-radius: 50%;
          object-fit: cover;
-         border: 1px solid #eee;
+         border: 1px solid rgba($color: #000000, $alpha: 0.3);
+      }
+
+      .online-status {
+         position: absolute;
+         bottom: 6rpx;
+         right: 5rpx;
+         width: 24rpx;
+         height: 24rpx;
+         background-color: #2cbe50;
+         border: 3rpx solid #fff;
+         border-radius: 50%;
+         box-shadow: 0 0 0 2rpx rgba(44, 190, 80, 0.2);
       }
    }
 
@@ -217,17 +273,21 @@ const handleComment = () => {
       }
 
       .images-container {
-         display: flex;
+         display: grid;
+         grid-template-columns: repeat(3, 1fr);
 
          gap: 8rpx;
          margin-bottom: 16rpx;
 
          .image-item {
+            width: 100%;
+            height: 100%;
             box-sizing: border-box;
             padding: 4rpx;
 
             .dynamic-image {
                width: 100%;
+               height: 100%;
                border-radius: 8rpx;
                display: block;
             }

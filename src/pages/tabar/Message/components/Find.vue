@@ -138,12 +138,13 @@ const getUnreadCount = (friend: Friend): number => {
 
 // 处理好友点击事件
 const handleFriendClick = (friend: Friend) => {
-   console.log('点击好友:', friend.username);
    router.push({ name: 'chat', params: { sendid: friend.id } });
 };
 
 // 组件挂载时
-onMounted(() => {});
+onShow(() => {
+   paging.value.refresh();
+});
 </script>
 
 <style lang="scss" scoped>
