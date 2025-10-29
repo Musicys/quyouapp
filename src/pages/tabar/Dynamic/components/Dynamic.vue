@@ -44,7 +44,6 @@ const queryList = (page, pageSize) => {
       // 模拟请求成功
       if (res.code === 0) {
          paging.value.complete(res.data);
-         console.log(res.data.length);
       } else {
          paging.value.complete(false);
       }
@@ -52,7 +51,7 @@ const queryList = (page, pageSize) => {
 };
 // 类似mixins，如果是页面滚动务必要写这一行，并传入当前ref绑定的paging，注意此处是paging，而非paging.value
 onShow(() => {
-   paging.value.refresh();
+   paging.value?.refresh();
 });
 // 其他省略
 </script>

@@ -30,7 +30,9 @@
             </view>
 
             <!-- 右侧查看按钮 -->
-            <view class="!flex items-center text-white/90">
+            <view
+               class="!flex items-center text-white/90"
+               @click="router.push({ name: 'usermessage' })">
                <text>查看</text>
                <wd-icon name="arrow-right" size="14" class="ml-1" />
             </view>
@@ -38,17 +40,19 @@
 
          <!-- 用户数据统计 -->
          <view class="!flex justify-around mt-8 cart">
-            <view class="text-center">
-               <view class="text-2xl font-bold">24</view>
-               <view class="text-xs mt-1">匹配成功</view>
-            </view>
-            <view class="text-center">
+            <view class="text-center" @click="router.push({ name: 'focuse' })">
                <view class="text-2xl font-bold">128</view>
-               <view class="text-xs mt-1">收到消息</view>
+               <view class="text-xs mt-1">我关注</view>
             </view>
-            <view class="text-center">
+            <view class="text-center" @click="router.push({ name: 'reply' })">
                <view class="text-2xl font-bold">56</view>
-               <view class="text-xs mt-1">活动参与</view>
+               <view class="text-xs mt-1">回复我</view>
+            </view>
+            <view
+               class="text-center"
+               @click="router.push({ name: 'acceptable' })">
+               <view class="text-2xl font-bold">56</view>
+               <view class="text-xs mt-1">认同我</view>
             </view>
          </view>
       </view>
@@ -126,6 +130,16 @@
                   class="cell-item"
                   @click="handleAboutClick" />
             </view>
+            <view
+               class="border-b border-gray-100"
+               @click="router.push({ name: 'userlst' })">
+               <wd-cell
+                  title="切换用户"
+                  icon="logout"
+                  :show-arrow="true"
+                  class="cell-item" />
+            </view>
+
             <view class="border-b border-gray-100" @click="handleLogout">
                <wd-cell
                   title="退出登录"
@@ -149,15 +163,10 @@
 import { useRouter } from 'uni-mini-router';
 import { useStore } from '@/store/user';
 import { sockeStore } from '@/store/socke';
+import { UserLogout } from '@/api/user';
 const router = useRouter();
 const userStore = useStore();
 const { SocketTask } = sockeStore();
-
-const goBack = e => {
-   router.push({
-      name: e
-   });
-};
 
 // 退出登录处理
 const handleLogout = () => {
@@ -167,12 +176,21 @@ const handleLogout = () => {
       content: '确定要退出登录吗？',
       success: res => {
          if (res.confirm) {
-            SocketTask.close();
             //端口 websoke
-            router.push({
-               path: '/pages/login/index'
-            });
 
+            UserLogout().then(res => {
+               if (res.code == 0) {
+                  userStore.setUserInfo({});
+                  SocketTask.close();
+                  uni.showToast({
+                     title: '退出成功',
+                     icon: 'success'
+                  });
+                  router.push({
+                     path: '/pages/login/index'
+                  });
+               }
+            });
             return;
          }
       }

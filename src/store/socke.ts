@@ -5,6 +5,7 @@ export const sockeStore = defineStore('socke', () => {
    const UserTilteList = ref([]);
    //用户列表
    const UserList = ref([]);
+   const ChatList = ref([]);
    const SocketTask = ref(null);
    // 创建 WebSocket 连接
    const websocke = id => {
@@ -56,21 +57,20 @@ export const sockeStore = defineStore('socke', () => {
 
       SocketTask.value.onMessage(res => {
          const resd = JSON.parse(`${res.data}`);
-
-         console.log(resd);
-
+         console.log('WebSocket 接收到消息', resd);
          //好友列表
          if (resd.type == 1) {
             //执行
 
-            UserList.value = resd.data;
+            UserList.value = resd.userData;
+            ChatList.value = resd.chatData.chatList;
          }
 
          //登录状态
          if (resd.type == 2) {
             for (let i = 0; i < UserList.value.length; i++) {
-               if (UserList.value[i].id == resd.data.id) {
-                  UserList.value[i].login = resd.data.login;
+               if (UserList.value[i].id == resd.userData.id) {
+                  UserList.value[i].login = resd.userData.login;
                }
             }
          }
@@ -79,16 +79,16 @@ export const sockeStore = defineStore('socke', () => {
 
          if (resd.type == 3) {
             for (let i = 0; i < UserList.value.length; i++) {
-               // console.log("响应数据0",UserList.value[i].id,resd.data.userid ,resd.data.sendid);
+               // console.log("响应数据0",UserList.value[i].id,resd.userData.userid ,resd.userData.sendid);
                if (
-                  UserList.value[i].id == resd.data.userid ||
-                  UserList.value[i].id == resd.data.sendid
+                  UserList.value[i].id == resd.userData.userid ||
+                  UserList.value[i].id == resd.userData.sendid
                ) {
                   console.log(
                      typeof UserList.value[i].sendList,
                      UserList.value[i].sendList
                   );
-                  UserList.value[i].sendList.push(resd.data);
+                  UserList.value[i].sendList.push(resd.userData);
                }
             }
          }
@@ -96,7 +96,18 @@ export const sockeStore = defineStore('socke', () => {
          //添加好友列表
          if (resd.type == 4) {
             //
-            UserList.value.push(resd.data);
+            UserList.value.push(resd.userData);
+         }
+
+         //群聊
+         if (resd.type == 5) {
+            for (let i = 0; i < ChatList.value.length; i++) {
+               console.log(resd.userData.chatid, ChatList.value[i]);
+
+               if (ChatList.value[i].id == resd.userData.chatid) {
+                  ChatList.value[i].sendList.push(resd.userData);
+               }
+            }
          }
       });
    };
@@ -112,7 +123,6 @@ export const sockeStore = defineStore('socke', () => {
 
    //消息改变成已读
    const setyellow = (userid: number, senid: number) => {
-      console.log('修改结果==》', UserList.value);
       for (let i = 0; i < UserList.value.length; i++) {
          if (UserList.value[i].id == senid) {
             for (let j = 0; j < UserList.value[i].sendList.length; j++) {
@@ -144,6 +154,7 @@ export const sockeStore = defineStore('socke', () => {
       UserTilteList,
       SocketTask,
       IsFriend,
-      setyellow
+      setyellow,
+      ChatList
    };
 });

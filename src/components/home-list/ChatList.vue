@@ -15,7 +15,7 @@
          <NoData></NoData>
       </template>
       <view class="item" v-for="(item, index) in dataList" :key="index">
-         <HomeUserCart :data="item"></HomeUserCart>
+         <ChatCart :data="item"></ChatCart>
       </view>
 
       <template #bottom> </template>
@@ -24,7 +24,9 @@
 
 <script lang="ts" setup>
 import NoData from '@/components/no-data/index.vue';
-import { UserList } from '@/api/system';
+import ChatCart from '@/components/chat-cart/index.vue';
+
+import { getChatList } from '@/api/chat';
 import HomeUserCart from '@/components/home-user-cart/index.vue';
 import { throttle } from '@/util/index';
 import Navtop from '@/components/nav-top/index.vue';
@@ -32,22 +34,35 @@ const paging = ref(null);
 
 let dataList = ref();
 
+const props = defineProps<{
+   data: any;
+}>();
+const from = ref({});
+
 const queryList = (page, pageSize) => {
-   UserList({
-      current: page,
+   getChatList({
+      page: page,
       pageSize: pageSize,
-      userStatus: 0
+      ...from.value
    }).then(res => {
       if (res.code == 0) {
-         paging.value.complete(res.data.records);
+         paging.value.complete(res.data);
       } else {
          paging.value.complete(false);
       }
    });
 };
+watch(
+   () => props.data,
+   newVal => {
+      from.value = newVal;
+      paging.value?.refresh();
+   },
+   { immediate: true }
+);
 // 类似mixins，如果是页面滚动务必要写这一行，并传入当前ref绑定的paging，注意此处是paging，而非paging.value
 onShow(() => {
-   paging.value.refresh();
+   paging.value?.refresh();
 });
 // 其他省略
 </script>

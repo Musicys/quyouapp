@@ -28,15 +28,23 @@ import NoData from '@/components/no-data/index.vue';
 import HomeUserCart from '@/components/home-user-cart/index.vue';
 import { useStore } from '@/store/user';
 import Navtop from '@/components/nav-top/index.vue';
+import { watch } from 'vue';
 const store = useStore();
 const paging = ref(null);
 let dataList = ref();
+
+const props = defineProps<{
+   data: any;
+}>();
+const from = ref({});
+
 const queryList = (page, pageSize) => {
    UserListLongitude({
       page: page,
       pageSize: pageSize,
       lat: store.userInfo.lat,
-      lng: store.userInfo.lng
+      lng: store.userInfo.lng,
+      ...from.value
    }).then(res => {
       if (res.code == 0) {
          paging.value.complete(res.data.userVOS);
@@ -45,6 +53,14 @@ const queryList = (page, pageSize) => {
       }
    });
 };
+watch(
+   () => props.data,
+   newVal => {
+      from.value = newVal;
+      paging.value?.refresh();
+   },
+   { immediate: true }
+);
 // 类似mixins，如果是页面滚动务必要写这一行，并传入当前ref绑定的paging，注意此处是paging，而非paging.value
 
 // 其他省略

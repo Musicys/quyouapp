@@ -12,9 +12,8 @@
             </wd-tab>
          </block>
       </wd-tabs>
-      <view class="but"> <wd-icon name="chat" size="16px"></wd-icon> </view>
-      <view class="post-btn" @tap="toSubmit">
-         <wd-icon name="edit" size="20px" color="#fff"></wd-icon>
+      <view class="but" @click="toSubmit">
+         <wd-icon name="chat"></wd-icon>
       </view>
    </view>
 </template>
@@ -27,15 +26,13 @@ const router = useRouter();
 const istab = ref(0);
 const tab = ref([
    { title: '动态', name: '0' },
-   { title: '标签', name: '1' }
+   { title: '关注', name: '1' }
 ]);
 const set = e => {
    console.log(e);
 };
 const toSubmit = () => {
-   router.push({
-      path: '/pages/tabar/dynamic/sumbitfrom/index'
-   });
+   router.push({ name: 'search' });
 };
 </script>
 
@@ -81,6 +78,7 @@ const toSubmit = () => {
    height: 80rpx;
    border-radius: 50%;
    background-color: #0bdaee;
+   z-index: 9999 !important;
    display: flex;
    align-items: center;
    justify-content: center;

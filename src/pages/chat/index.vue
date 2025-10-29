@@ -55,6 +55,9 @@
          :scroll-with-animation="true"
          :show-scrollbar="false">
          <view class="bottom-placeholder">
+            <view v-if="hasMore" class="see-more" @click="loadMoreMessages">
+               <text class="see-more-text">查看更多</text>
+            </view>
             <view
                v-for="(msg, index) in messages"
                :key="index"
@@ -181,6 +184,7 @@ import { nextTick, onMounted, ref, watch } from 'vue';
 import { sockeStore } from '@/store/socke';
 import { useStore } from '@/store/user';
 import { UpdateSendsye } from '@/api/wbscoke';
+import { getSendMsgList } from '@/api/chat';
 
 const { userInfo } = useStore();
 const soke = sockeStore();
@@ -206,9 +210,15 @@ const friendInfo = ref({
    sendList: [],
    id: ''
 });
+const form = ref({
+   page: 1,
+   pageSize: 20,
+   sendId: ''
+});
+const hasMore = ref(true);
 onMounted(() => {
    const sendid = route.query.sendid || '';
-
+   form.value.sendId = sendid;
    try {
       // 尝试从store获取用户信息
       const index = UserList.findIndex(item => item.id == sendid);
@@ -220,7 +230,13 @@ onMounted(() => {
          });
          friendInfo.value = UserList[index];
       }
-      updateMessages();
+      updateMessages(() => {
+         if (messages.value.length < form.value.page * form.value.pageSize) {
+            hasMore.value = false;
+         } else {
+            form.value.page += 1;
+         }
+      });
    } catch (error) {
       console.error('处理用户数据失败:', error);
    }
@@ -233,6 +249,40 @@ watch(
    },
    { deep: true }
 );
+// 加载更多消息
+const loadMoreMessages = () => {
+   uni.showLoading({
+      title: '加载中',
+      mask: true
+   });
+
+   // 在实际应用中，这里应该调用API加载更多历史消息
+   // 这里仅做模拟示例
+
+   // 调用API获取更多消息（示例）
+   getSendMsgList(form.value).then(res => {
+      if (res.code === 0) {
+         const arr = res.data || [];
+         arr.reverse();
+
+         const arrsend = arr.map(msg => ({
+            content: msg.context,
+            type: 'text',
+            time: formatTime(msg.createtime),
+            isMine: msg.userid == userInfo.id // 假设当前用户ID是26758
+         }));
+         // 将新消息添加到现有消息前面，实现历史消息加载
+         messages.value = [...arrsend, ...messages.value];
+
+         if (arr.length != form.value.pageSize) {
+            hasMore.value = false;
+         } else {
+            form.value.page += 1;
+         }
+         uni.hideLoading();
+      }
+   });
+};
 
 // 滚动到底部函数
 const scrollToBottom = () => {
@@ -253,7 +303,7 @@ const scrollToBottom = () => {
 
 // 监听friendInfo.value.sendList变化，同步到messages
 
-const updateMessages = () => {
+const updateMessages = (fun = () => {}) => {
    if (friendInfo.value.sendList && friendInfo.value.sendList.length > 0) {
       messages.value = friendInfo.value.sendList.map(msg => ({
          content: msg.context,
@@ -261,6 +311,8 @@ const updateMessages = () => {
          time: formatTime(msg.createtime),
          isMine: msg.userid == userInfo.id // 假设当前用户ID是26758
       }));
+      fun();
+      console.log(messages.value);
    } else {
       // 如果没有消息，设置默认消息
       messages.value = [
@@ -684,5 +736,19 @@ $online-green: #52c41a;
       font-size: 20px;
       margin: 5px;
    }
+}
+/* 查看更多样式 */
+.see-more {
+   text-align: center;
+   margin-bottom: 20rpx;
+   border-radius: 20rpx;
+   cursor: pointer;
+   transition: background-color 0.2s;
+}
+
+.see-more-text {
+   font-size: 26rpx;
+   color: #666;
+   font-weight: 500;
 }
 </style>

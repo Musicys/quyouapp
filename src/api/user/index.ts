@@ -72,3 +72,20 @@ export const UserExit = (data: any) => {
 export const UserUpdateLongitude = (data: { lnt: number; lat: number }) => {
    return HttpPost('/api/user/updateLongitude', data);
 };
+
+/**
+ * @description 用户信息编辑
+ */
+export const UserEdit = (data: {
+   age: number;
+   avatarUrl: string;
+   gender: number;
+   id: number;
+   imagsarr: string;
+   introductory: string;
+   phone: string;
+   tags: string;
+   username: string;
+}) => {
+   return HttpPost('/api/user/updateInfo', data);
+};

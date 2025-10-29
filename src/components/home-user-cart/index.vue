@@ -1,7 +1,9 @@
 <template>
    <view class="user-card">
       <!-- 左侧头像区域 -->
-      <view class="avatar-container">
+      <view
+         class="avatar-container"
+         @tap="router.push({ name: 'preinfo', params: { userId: data.id } })">
          <image
             :src="data.avatarUrl"
             mode="aspectFill"

@@ -37,12 +37,136 @@
             "navigationBarBackgroundColor": "#E7F0FF"
          }
       },
+
+      {
+         "path": "pages/preinfo/index",
+         "name": "preinfo",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "用户信息",
+            "navigationBarBackgroundColor": "#E7F0FF"
+         }
+      },
+      {
+         "path": "pages/tabar/mine/userlst/index",
+         "name": "userlst",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "切换用户",
+            "navigationBarBackgroundColor": "#E7F0FF"
+         }
+      },
+      {
+         "path": "pages/tabar/mine/usermessage/index",
+         "name": "usermessage",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "用户信息",
+            "navigationBarBackgroundColor": "#E7F0FF"
+         }
+      },
       {
          "path": "pages/chat/index",
          "name": "chat",
          "style": {
             "navigationStyle": "custom",
             "navigationBarTitleText": "聊天室",
+            "navigationBarBackgroundColor": "#E7F0FF",
+            "app-plus": {
+               "softinputMode": "adjustResize",
+               "inputAccessoryView": false
+            },
+            "h5": {
+               "softinputMode": "adjustResize"
+            }
+         }
+      },
+      {
+         "path": "pages/groupchat/index",
+         "name": "groupchat",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "群聊",
+            "navigationBarBackgroundColor": "#E7F0FF",
+            "app-plus": {
+               "softinputMode": "adjustResize",
+               "inputAccessoryView": false
+            },
+            "h5": {
+               "softinputMode": "adjustResize"
+            }
+         }
+      },
+      {
+         "path": "pages/befocused/index",
+         "name": "befocused",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "被关注",
+            "navigationBarBackgroundColor": "#E7F0FF",
+            "app-plus": {
+               "softinputMode": "adjustResize",
+               "inputAccessoryView": false
+            },
+            "h5": {
+               "softinputMode": "adjustResize"
+            }
+         }
+      },
+      {
+         "path": "pages/focuse/index",
+         "name": "focuse",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "关注",
+            "navigationBarBackgroundColor": "#E7F0FF",
+            "app-plus": {
+               "softinputMode": "adjustResize",
+               "inputAccessoryView": false
+            },
+            "h5": {
+               "softinputMode": "adjustResize"
+            }
+         }
+      },
+      {
+         "path": "pages/search/index",
+         "name": "search",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "搜索",
+            "navigationBarBackgroundColor": "#E7F0FF",
+            "app-plus": {
+               "softinputMode": "adjustResize",
+               "inputAccessoryView": false
+            },
+            "h5": {
+               "softinputMode": "adjustResize"
+            }
+         }
+      },
+      {
+         "path": "pages/tabar/mine/reply/index",
+         "name": "reply",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "回复",
+            "navigationBarBackgroundColor": "#E7F0FF",
+            "app-plus": {
+               "softinputMode": "adjustResize",
+               "inputAccessoryView": false
+            },
+            "h5": {
+               "softinputMode": "adjustResize"
+            }
+         }
+      },
+      {
+         "path": "pages/tabar/mine/acceptable/index",
+         "name": "acceptable",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "认同",
             "navigationBarBackgroundColor": "#E7F0FF",
             "app-plus": {
                "softinputMode": "adjustResize",
@@ -117,6 +241,39 @@
             },
             "navigationStyle": "custom",
             "navigationBarTitleText": "我的"
+         }
+      },
+      {
+         "path": "pages/tabar/mine/exituser/index",
+         "name": "exituser",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "用户信息编辑"
+         }
+      },
+      {
+         "path": "pages/viewed/index",
+         "name": "viewed",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "被查看"
+         }
+      },
+      {
+         "path": "pages/look/index",
+         "name": "look",
+         "style": {
+            "mp-alipay": {
+               "allowsBounceVertical": "NO"
+            },
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "查看"
          }
       }
    ],

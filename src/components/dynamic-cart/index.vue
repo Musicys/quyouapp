@@ -5,11 +5,11 @@
          <view class="box">
             <image
                class="avatar"
-               :src="dynamic.avatarUrl"
+               :src="localDynamic.avatarUrl"
                mode="widthFix"
                alt="用户头像"></image>
             <!-- 在线状态绿圈 -->
-            <view v-if="dynamic.login === 1" class="online-status"></view>
+            <view v-if="localDynamic.login === 1" class="online-status"></view>
          </view>
       </view>
 
@@ -19,23 +19,42 @@
          <view class="user-info-row">
             <view class="user-info">
                <view class="top">
-                  <text class="username">{{ dynamic.username }}</text>
-                  <text class="ip-location"> IP: {{ dynamic.province }} </text>
-                  <text class="location">
-                     {{ dynamic.district }}
+                  <text class="username">{{ localDynamic.username }}</text>
+                  <template v-if="genderText || localDynamic.age">
+                     <text class="user-info-item">
+                        {{ genderText
+                        }}{{ localDynamic.age ? localDynamic.age + '岁' : '' }}
+                     </text>
+                  </template>
+                  <text class="ip-location" v-if="localDynamic.province">
+                     IP: {{ localDynamic.province }}
+                  </text>
+                  <text class="location" v-if="localDynamic.district">
+                     {{ localDynamic.district }}
                   </text>
                   <text class="same-city" v-if="isSameCity"> (同城) </text>
                </view>
                <view class="time"> {{ formattedTime }} </view>
             </view>
-            <wd-button plain size="small">
-               {{ dynamic.isFollowed ? '已关注' : '关注' }}</wd-button
+            <wd-button
+               plain
+               size="small"
+               :disabled="isOwnDynamic"
+               @click.stop="handleFollow"
+               :loading="isFollowing">
+               {{
+                  isOwnDynamic
+                     ? '自己'
+                     : localDynamic.isFocus === '1'
+                       ? '已关注'
+                       : '关注'
+               }}</wd-button
             >
          </view>
 
          <!-- 第二行：动态内容 -->
          <view class="dynamic-content">
-            <text>{{ dynamic.context }}</text>
+            <text>{{ localDynamic.context }}</text>
          </view>
 
          <!-- 第三行：图片展示 -->
@@ -46,7 +65,7 @@
                :key="index">
                <image
                   :src="img"
-                  mode="widthFix"
+                  mode="heightFix"
                   class="dynamic-image"
                   alt="动态图片"></image>
             </view>
@@ -58,21 +77,24 @@
                <wd-icon name="chat-o" size="22"></wd-icon>
                <text class="action-text">私聊</text>
             </view>
-            <template v-if="dynamic.formatted">
+            <template v-if="localDynamic.formatted">
                <wd-icon name="location" size="20"></wd-icon>
-               <text>{{ dynamic.formatted }}</text></template
+               <text>{{ localDynamic.formatted }}</text></template
             >
 
             <view class="distance">
-               <view class="action-item like-btn" @click.stop="handleLike">
+               <view
+                  class="action-item like-btn"
+                  @click.stop="handleLike"
+                  :class="{ liked: localDynamic.isLove === 1 }">
                   <wd-icon name="heart" size="22px"></wd-icon>
-                  <text class="action-text">{{ dynamic.love }}</text>
+                  <text class="action-text">{{ localDynamic.love }}</text>
                </view>
                <view
                   class="action-item comment-btn"
                   @click.stop="handleComment">
-                  <wd-icon name="heart" size="22px"></wd-icon>
-                  <text class="action-text">{{ dynamic.count }}</text>
+                  <wd-icon name="comment" size="22px"></wd-icon>
+                  <text class="action-text">{{ localDynamic.count }}</text>
                </view>
             </view>
          </view>
@@ -83,20 +105,51 @@
 <script setup lang="ts">
 import { useStore } from '@/store/user';
 import { Dynamic } from '@/api/dynamic/model/type';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { FocusAdd, FocusDel } from '@/api/focus';
+import { LoveAdd, LoveDel } from '@/api/love';
 const router = useRouter();
 const store = useStore();
+
+// 定义当前用户类型
+interface CurrentUser {
+   province?: string;
+   [key: string]: any;
+}
 
 const props = defineProps<{
    dynamic: Dynamic;
 }>();
 
+const emit = defineEmits<{
+   'update:dynamic': [value: Dynamic];
+}>();
+
+// 状态管理
+const isFollowing = ref(false);
+const isLiking = ref(false);
+
+// 创建本地响应式数据副本，避免直接操作props
+const localDynamic = ref<Dynamic>({ ...props.dynamic });
+
+// 监听props变化，更新本地副本
+watch(
+   () => props.dynamic,
+   newVal => {
+      localDynamic.value = { ...newVal };
+   },
+   { deep: true }
+);
+
 // 处理图片字符串转数组（解析JSON字符串）
 const imageList = computed(() => {
-   if (!props.dynamic.imgarr) return [];
+   if (!localDynamic.value.imgarr) return [];
    try {
-      const images = JSON.parse(props.dynamic.imgarr);
+      const images =
+         typeof localDynamic.value.imgarr === 'string'
+            ? JSON.parse(localDynamic.value.imgarr)
+            : localDynamic.value.imgarr;
 
       return Array.isArray(images) ? images : [];
    } catch (e) {
@@ -109,31 +162,117 @@ const isSameCity = computed(() => {
    // 从store中获取当前用户信息
    const currentUser: CurrentUser = store.userInfo;
    // 比较动态发布者地区和当前用户地区
-   return currentUser?.province && props.dynamic.province
-      ? currentUser.province === props.dynamic.province
+   return currentUser?.province && localDynamic.value.province
+      ? currentUser.province === localDynamic.value.province
       : false;
 });
 
+// 性别显示文本
+const genderText = computed(() => {
+   return localDynamic.value.gender === 1
+      ? '男'
+      : localDynamic.value.gender === 0
+        ? '女'
+        : '';
+});
+
+// 判断是否是自己发布的动态
+const isOwnDynamic = computed(() => {
+   return store.userInfo?.id === localDynamic.value.userId;
+});
+
 // 关注/取消关注
-const handleFollow = () => {
-   console.log(
-      `点击${props.dynamic.isFollowed ? '取消关注' : '关注'}: ${props.dynamic.userAccount}`
-   );
-   // 实际项目中会通过emit通知父组件更新状态
-   // context.emit('toggleFollow', props.dynamic.userId);
+const handleFollow = async () => {
+   // 如果是自己发布的动态，不执行任何操作
+   if (isOwnDynamic.value || isFollowing.value) return;
+
+   try {
+      isFollowing.value = true;
+      const isFocus = localDynamic.value.isFocus === '1';
+      console.log(
+         `${isFocus ? '取消关注' : '关注'}用户: ${localDynamic.value.userAccount}`
+      );
+
+      // 调用对应的API
+      const result = isFocus
+         ? await FocusDel({ focusUserId: localDynamic.value.userId })
+         : await FocusAdd({ focusUserId: localDynamic.value.userId });
+
+      // 操作成功后先更新本地状态，然后通知父组件
+      if (result.code === 0) {
+         // 更新本地状态
+         localDynamic.value = {
+            ...localDynamic.value,
+            isFocus: isFocus ? '0' : '1'
+         };
+         // 通知父组件
+         emit('update:dynamic', { ...localDynamic.value });
+      } else {
+         uni.showToast({
+            title: result.msg || (isFocus ? '取消关注失败' : '关注失败'),
+            icon: 'none'
+         });
+      }
+   } catch (error) {
+      console.error('关注/取消关注失败:', error);
+      uni.showToast({ title: '网络错误', icon: 'none' });
+   } finally {
+      isFollowing.value = false;
+   }
 };
 
 // 私聊
 const handleChat = () => {
-   console.log(`开始私聊: ${props.dynamic.userAccount}`);
-   // 实际项目中会跳转到聊天页面
-   // uni.navigateTo({ url: `/pages/chat?userId=${props.dynamic.userId}` });
+   console.log(`开始私聊: ${localDynamic.value.userAccount}`);
+   // 跳转到聊天页面
+   uni.navigateTo({
+      url: `/pages/chat?userId=${localDynamic.value.userId}&username=${encodeURIComponent(localDynamic.value.username)}&avatarUrl=${encodeURIComponent(localDynamic.value.avatarUrl)}`
+   });
 };
 
-// 点赞
-const handleLike = () => {
-   console.log(`点赞动态: ${props.dynamic.id}`);
-   // 实际项目中会调用点赞API
+// 点赞/取消点赞
+const handleLike = async () => {
+   if (isLiking.value) return;
+
+   try {
+      isLiking.value = true;
+      const isLoved = localDynamic.value.isLove === 1;
+      console.log(
+         `${isLoved ? '取消点赞' : '点赞'}动态: ${localDynamic.value.id}`
+      );
+
+      // 调用对应的API，commentsId传null表示动态点赞
+      const result = isLoved
+         ? await LoveDel({ commentsId: null, dynamicId: localDynamic.value.id })
+         : await LoveAdd({
+              commentsId: null,
+              dynamicId: localDynamic.value.id
+           });
+
+      // 操作成功后先更新本地状态，然后通知父组件
+      if (result.code === 0) {
+         // 更新本地状态
+         localDynamic.value = {
+            ...localDynamic.value,
+            isLove: isLoved ? 0 : 1,
+            love: isLoved
+               ? localDynamic.value.love - 1
+               : localDynamic.value.love + 1
+         };
+         // 通知父组件
+         emit('update:dynamic', { ...localDynamic.value });
+      } else {
+         uni.showToast({
+            title: result.msg || (isLoved ? '取消点赞失败' : '点赞失败'),
+            icon: 'none'
+         });
+      }
+   } catch (error) {
+      console.error('点赞/取消点赞失败:', error);
+      uni.showToast({ title: '网络错误', icon: 'none' });
+   } finally {
+      isLiking.value = false;
+   }
 };
 
 // 评论
@@ -141,7 +280,7 @@ const handleComment = () => {
    router.push({
       path: '/pages/tabar/dynamic/datails/index',
       query: {
-         dynamicId: props.dynamic.id
+         dynamicId: localDynamic.value.id
       }
    });
    // 实际项目中会跳转到评论页面或弹出评论框
@@ -149,10 +288,10 @@ const handleComment = () => {
 
 // 格式化时间
 const formattedTime = computed(() => {
-   if (!props.dynamic.createTime) return '';
+   if (!localDynamic.value.createTime) return '';
 
    // 解析时间字符串为Date对象
-   const createTime = new Date(props.dynamic.createTime);
+   const createTime = new Date(localDynamic.value.createTime);
    const now = new Date();
    const diffInSeconds = Math.floor(
       (now.getTime() - createTime.getTime()) / 1000
@@ -228,14 +367,14 @@ const formattedTime = computed(() => {
          justify-content: space-between;
          align-items: center;
 
-         height: 80rpx;
+         min-height: 80rpx;
 
          .user-info {
             display: flex;
             flex-wrap: wrap;
             gap: 8rpx 12rpx;
-            align-items: start;
-            flex-direction: column;
+            align-items: center;
+            flex-direction: row;
 
             .username {
                font-size: 28rpx;
@@ -244,7 +383,8 @@ const formattedTime = computed(() => {
             }
 
             .ip-location,
-            .location {
+            .location,
+            .user-info-item {
                font-size: 22rpx;
                color: #999;
             }
@@ -284,6 +424,7 @@ const formattedTime = computed(() => {
             height: 100%;
             box-sizing: border-box;
             padding: 4rpx;
+            height: 150rpx;
 
             .dynamic-image {
                width: 100%;
@@ -315,6 +456,14 @@ const formattedTime = computed(() => {
 
             &:active {
                color: #007aff;
+            }
+
+            &.liked {
+               color: #ff4757;
+
+               :deep(.wd-icon) {
+                  color: #ff4757;
+               }
             }
          }
 

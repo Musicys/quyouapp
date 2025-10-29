@@ -10,7 +10,7 @@
          <NoData></NoData>
       </template>
       <view class="item" v-for="(item, index) in dataList" :key="index">
-         <view class="item-title">{{ index }}</view>
+         <DynamicCart :dynamic="item"></DynamicCart>
       </view>
 
       <template #bottom> </template>
@@ -20,14 +20,29 @@
 <script lang="ts" setup>
 import NoData from '@/components/no-data/index.vue';
 import Navtop from '@/components/nav-top/index.vue';
+import DynamicCart from '@/components/dynamic-cart/index.vue';
+import { focusdrslst } from '@/api/focus';
 const paging = ref(null);
 
 let dataList = ref();
 
 const queryList = (page, pageSize) => {
-   paging.value.complete([1, 2, 3, 4, 4, 5, 6, 7, 8, 5, 9, page, pageSize]);
+   focusdrslst({
+      page,
+      pageSize,
+      sach: ''
+   }).then(res => {
+      // 模拟请求成功
+      if (res.code === 0) {
+         paging.value.complete(res.data);
+      } else {
+         paging.value.complete(false);
+      }
+   });
 };
 // 类似mixins，如果是页面滚动务必要写这一行，并传入当前ref绑定的paging，注意此处是paging，而非paging.value
-
+onShow(() => {
+   paging.value?.refresh();
+});
 // 其他省略
 </script>

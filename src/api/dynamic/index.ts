@@ -84,3 +84,34 @@ export const addComment = (data: {
 }) => {
    return HttpPost('/api/comments/add', data);
 };
+
+/**
+ * @description 获取固定ID的动态
+ * @param data  { page: number; pageSize: number; id: number; }
+ * @ret
+ * */
+export const getDynamicById = (data: {
+   page: number;
+   pageSize: number;
+   id: number;
+}) => {
+   return HttpPost('/api/detail/get/user/dynamic', {
+      current: data.page,
+      pageSize: data.pageSize, // id: 1
+      province: '',
+      sortField: '',
+      sortOrder: '',
+      userid: data.id
+   });
+};
+
+/**
+ * @description 删除动态
+ * @param data { dynamicId: number }
+ * @returns Promise
+ */
+export const deleteDynamic = id => {
+   return HttpGet('/api/dynamic/delete', {
+      id: id
+   });
+};

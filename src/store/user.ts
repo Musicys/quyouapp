@@ -19,7 +19,6 @@ export const useStore = defineStore(
       }); //经纬度
 
       const setLocation = () => {
-         console.log('ces==》');
          uni.getLocation({
             type: 'wgs84',
             success: function (res) {
