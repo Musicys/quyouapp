@@ -47,7 +47,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-
+import { sockeStore } from '@/store/socke';
+import { useStore } from '@/store/user';
+import router from '@/router';
+const { userInfo } = useStore();
+const { send } = sockeStore();
 interface GroupChatData {
    id: number;
    userId: number;
@@ -93,33 +97,41 @@ const parsedTags = computed(() => {
 
 // 查看群聊详情
 const handleViewGroupChat = () => {
-   if (localData.value.id) {
-      uni.navigateTo({
-         url: `/pages/groupchat/index?id=${localData.value.id}`
+   setTimeout(() => {
+      router.push({
+         name: 'groupchat',
+         params: { groupId: localData.value.id }
       });
-   }
+   }, 1000);
 };
 
 // 加入群聊
 const handleJoinGroup = () => {
-   if (localData.value.id) {
-      // 这里可以调用加入群聊的API
-      console.log('Join group chat:', localData.value.id);
-
-      // 模拟加入成功
-      localData.value.isAdd = 1;
-      localData.value.count += 1;
-
-      // 可以发出事件通知父组件
-      // emit('join', { groupId: localData.value.id });
-
-      uni.showToast({
-         title: '加入成功',
-         icon: 'success'
+   if (localData.value.IsAdd == 1) {
+      router.push({
+         name: 'groupchat',
+         params: { groupId: localData.value.id }
       });
+   } else {
+      send(
+         JSON.stringify({
+            id: userInfo.id,
+            type: 6,
+            sendid: null,
+            sendteam: localData.value.id,
+            context: '',
+            sendTime: new Date()
+         })
+      );
+      localData.value.IsAdd = 1;
+      setTimeout(() => {
+         router.push({
+            name: 'groupchat',
+            params: { groupId: localData.value.id }
+         });
+      }, 1000);
    }
 };
-
 // 点击标签
 const handleTagClick = (tag: string) => {
    // 可以根据标签进行搜索或其他操作

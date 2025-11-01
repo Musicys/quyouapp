@@ -153,7 +153,7 @@ const handlePublish = async () => {
       if (res.code === 0) {
          uni.showToast({
             title: '发布成功',
-            icon: 'success'
+            icon: 'none'
          });
          // 发布成功后返回上一页
          setTimeout(() => {

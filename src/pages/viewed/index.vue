@@ -8,7 +8,7 @@
       <template #top>
          <view class="search-header">
             <view class="search-bar">
-               <view class="back-btn" @click="handleBack">
+               <view class="back-btn" @click="router.back()">
                   <wd-icon name="thin-arrow-left" size="22px"></wd-icon>
                </view>
                <view class="search-input-container">
@@ -20,14 +20,14 @@
 
                   <input
                      type="search"
-                     v-model="searchKeyword"
+                     v-model="sach"
                      placeholder="搜索"
                      @change="handleSearchChange"
                      placeholder-class="search-placeholder"
                      @focus="showHistory = true"
                      class="search-input" />
                </view>
-               <view class="search-btn" @click="handleSearch">
+               <view class="search-btn" @click="paging?.refresh()">
                   <text class="search-btn-text">搜索</text>
                </view>
             </view>
@@ -51,9 +51,10 @@ import { LookUser } from '@/api/look/model/type';
 import { onMounted, reactive } from 'vue';
 import NoData from '@/components/no-data/index.vue';
 import ViewedCart from './components/ViewedCart.vue';
-
+import { useRouter } from 'uni-mini-router';
+const router = useRouter();
 const paging = ref(null);
-
+const sach = ref('');
 const data = ref<LookUser[]>();
 const queryList = (page, pageSize) => {
    LookGetList({
@@ -78,6 +79,7 @@ onMounted(() => {
    background-color: #fff;
    position: sticky;
    top: 0;
+
    z-index: 10;
 }
 

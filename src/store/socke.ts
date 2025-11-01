@@ -27,6 +27,7 @@ export const sockeStore = defineStore('socke', () => {
          url: import.meta.env.VITE_APP_WS_WEBSCOKE
             ? import.meta.env.VITE_APP_WS_WEBSCOKE + `/api/websocket/${id}`
             : `ws://${window.location.host}/api/websocket/${id}`, // WebSocket 地址
+
          // #endif
          success: () => {
             console.log(
@@ -102,12 +103,28 @@ export const sockeStore = defineStore('socke', () => {
          //群聊
          if (resd.type == 5) {
             for (let i = 0; i < ChatList.value.length; i++) {
-               console.log(resd.userData.chatid, ChatList.value[i]);
-
                if (ChatList.value[i].id == resd.userData.chatid) {
+                  ChatList.value[i].lookCount += 1;
                   ChatList.value[i].sendList.push(resd.userData);
                }
             }
+         }
+
+         //群公告
+         if (resd.type == 6) {
+            for (let i = 0; i < ChatList.value.length; i++) {
+               if (ChatList.value[i].id == resd.chatData.chatid) {
+                  ChatList.value[i].lookCount += 1;
+                  console.log('soke', ChatList.value[i]);
+
+                  ChatList.value[i].sendList.push(resd.chatData);
+               }
+            }
+         }
+
+         //添加群聊列表
+         if (resd.type == 7) {
+            ChatList.value.push(resd.chatData);
          }
       });
    };

@@ -32,7 +32,7 @@
             </view>
             <text class="feature-text">最新关注</text>
             <text class="feature-count">{{
-               Math.floor(Math.random() * 10)
+               statusnum.focus == 0 ? '暂无' : statusnum.focus
             }}</text>
          </view>
 
@@ -45,7 +45,7 @@
             </view>
             <text class="feature-text">谁看过我</text>
             <text class="feature-count">{{
-               Math.floor(Math.random() * 20)
+               statusnum.look - 1 == 0 ? '暂无' : statusnum.look - 1
             }}</text>
          </view>
 
@@ -58,7 +58,7 @@
             </view>
             <text class="feature-text">谁喜欢我</text>
             <text class="feature-count">{{
-               Math.floor(Math.random() * 15)
+               statusnum.like == 0 ? '暂无' : statusnum.like
             }}</text>
          </view>
       </view>
@@ -76,17 +76,30 @@
 import Find from './components/Find.vue';
 import Group from './components/Group.vue';
 import { ref } from 'vue';
-import { onPageScroll } from '@dcloudio/uni-app';
+import { onPageScroll, onShow } from '@dcloudio/uni-app';
 import { useRouter } from 'uni-mini-router';
+import { MyViewStatistics } from '@/api/system';
+
 const router = useRouter();
+const tabIndex = ref<number>(0);
+const isHeaderFixed = ref<boolean>(false);
+const scrollTop = ref<number>(0);
+const statusnum = ref({
+   focus: 0,
+   like: 0,
+   look: 0
+});
 onPageScroll(event => {
    scrollTop.value = event.scrollTop;
    // 当滚动超过100px时，固定头部0
    isHeaderFixed.value = scrollTop.value > 40;
 });
-const tabIndex = ref<number>(0);
-const isHeaderFixed = ref<boolean>(false);
-const scrollTop = ref<number>(0);
+onShow(async () => {
+   let res = await MyViewStatistics();
+   if (res.code === 0) {
+      statusnum.value = res.data;
+   }
+});
 </script>
 
 <style lang="scss" scoped>

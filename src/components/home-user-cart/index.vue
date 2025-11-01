@@ -8,7 +8,7 @@
             :src="data.avatarUrl"
             mode="aspectFill"
             class="avatar"
-            :alt="data.username"></image>
+            :alt="data.username" />
          <!-- 在线状态指示器 -->
          <view
             class="online-indicator"
@@ -43,18 +43,21 @@
 
             <!-- 第三行：个人描述 -->
             <view class="third-line">
-               <text class="intro">{{ data.introductory }}</text>
+               <text class="intro">{{
+                  data.introductory || '用户很懒，什么都没写...'
+               }}</text>
             </view>
          </vue>
          <!-- 图片展示区 -->
          <view v-if="imageList.length" class="images-container">
-            <image
+            <wd-img
                v-for="(img, index) in imageList"
+               :enable-preview="true"
                :key="index"
                :src="img"
                mode="aspectFill"
                class="image-item"
-               :alt="'用户上传图片 ' + (index + 1)"></image>
+               :alt="'用户上传图片 ' + (index + 1)" />
          </view>
       </view>
    </view>

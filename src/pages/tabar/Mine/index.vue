@@ -41,17 +41,23 @@
          <!-- 用户数据统计 -->
          <view class="!flex justify-around mt-8 cart">
             <view class="text-center" @click="router.push({ name: 'focuse' })">
-               <view class="text-2xl font-bold">128</view>
+               <view class="text-lg">{{
+                  statusnum.myFocus == 0 ? '暂无' : statusnum.myFocus
+               }}</view>
                <view class="text-xs mt-1">我关注</view>
             </view>
             <view class="text-center" @click="router.push({ name: 'reply' })">
-               <view class="text-2xl font-bold">56</view>
+               <view class="text-lg">{{
+                  statusnum.myReply == 0 ? '暂无' : statusnum.myReply
+               }}</view>
                <view class="text-xs mt-1">回复我</view>
             </view>
             <view
                class="text-center"
                @click="router.push({ name: 'acceptable' })">
-               <view class="text-2xl font-bold">56</view>
+               <view class="text-lg">{{
+                  statusnum.myLike == 0 ? '暂无' : statusnum.myLike
+               }}</view>
                <view class="text-xs mt-1">认同我</view>
             </view>
          </view>
@@ -164,9 +170,17 @@ import { useRouter } from 'uni-mini-router';
 import { useStore } from '@/store/user';
 import { sockeStore } from '@/store/socke';
 import { UserLogout } from '@/api/user';
+import { YoUViewStatistics } from '@/api/system';
+import { onShow } from '@dcloudio/uni-app';
 const router = useRouter();
 const userStore = useStore();
 const { SocketTask } = sockeStore();
+
+const statusnum = ref({
+   myFocus: 0,
+   myReply: 0,
+   myLike: 0
+});
 
 // 退出登录处理
 const handleLogout = () => {
@@ -184,7 +198,7 @@ const handleLogout = () => {
                   SocketTask.close();
                   uni.showToast({
                      title: '退出成功',
-                     icon: 'success'
+                     icon: 'none'
                   });
                   router.push({
                      path: '/pages/login/index'
@@ -196,6 +210,13 @@ const handleLogout = () => {
       }
    });
 };
+
+onShow(async () => {
+   let res = await YoUViewStatistics();
+   if (res.code === 0) {
+      statusnum.value = res.data;
+   }
+});
 </script>
 
 <style lang="scss" scoped>

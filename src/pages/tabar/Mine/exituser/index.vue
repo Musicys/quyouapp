@@ -338,7 +338,7 @@ const handleSave = () => {
    // 模拟保存成功
    uni.showToast({
       title: '保存成功',
-      icon: 'success'
+      icon: 'none'
    });
 };
 

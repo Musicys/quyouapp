@@ -5,24 +5,17 @@
          <!-- 群消息卡片 -->
          <view
             class="group-item"
-            v-for="group in ChatList"
+            v-for="group in data"
             :key="group.id"
             @click="goToChat(group.id)">
             <!-- 左侧组合头像区域 -->
             <view class="avatar-section">
                <view class="combined-avatar">
                   <!-- 显示最多4个头像组合 -->
-                  <view class="avatar-grid">
-                     <view
-                        v-for="(member, index) in getFirstFourMembers(
-                           group.sendList
-                        )"
-                        :key="index"
-                        class="small-avatar"
-                        :style="{
-                           backgroundImage: `url(${member.avatarUrl.replace(/`/g, '')})`
-                        }"></view>
-                  </view>
+                  <image
+                     :src="group.url"
+                     class="avatar-image"
+                     style="width: 100%; height: 100%"></image>
                   <!-- 未读消息角标 -->
                   <view v-if="group.lookCount > 0" class="unread-badge">
                      {{ group.lookCount > 99 ? '99+' : group.lookCount }}
@@ -66,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { sockeStore } from '@/store/socke';
 import { useStore } from '@/store/user';
 import { useRouter } from 'uni-mini-router';
@@ -75,6 +68,19 @@ import { formatMessageTime } from './index';
 const router = useRouter();
 const user = useStore();
 const { ChatList } = sockeStore();
+
+const data = ref({ ...ChatList });
+watch(
+   () => ChatList,
+   () => {
+      console.log('改变了', ChatList);
+
+      data.value = { ...ChatList };
+   },
+   {
+      deep: true
+   }
+);
 
 // 获取最后一条消息
 const getLastMessage = (sendList: any[]) => {
@@ -249,5 +255,10 @@ onMounted(() => {});
    overflow: hidden;
    text-overflow: ellipsis;
    white-space: nowrap;
+}
+.avatar-image {
+   height: 100%;
+   width: 100%;
+   border-radius: 15rpx;
 }
 </style>

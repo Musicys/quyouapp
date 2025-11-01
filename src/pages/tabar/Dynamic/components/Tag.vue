@@ -13,7 +13,9 @@
          <DynamicCart :dynamic="item"></DynamicCart>
       </view>
 
-      <template #bottom> </template>
+      <template #bottom>
+         <NavBottom></NavBottom>
+      </template>
    </z-paging>
 </template>
 
@@ -22,6 +24,7 @@ import NoData from '@/components/no-data/index.vue';
 import Navtop from '@/components/nav-top/index.vue';
 import DynamicCart from '@/components/dynamic-cart/index.vue';
 import { focusdrslst } from '@/api/focus';
+import NavBottom from '@/components/nav-buttom/index.vue';
 const paging = ref(null);
 
 let dataList = ref();

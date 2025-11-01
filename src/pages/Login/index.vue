@@ -1,126 +1,122 @@
 <template>
    <view class="wrapper" :style="colorStyle">
-      <!-- #ifdef MP -->
-      <view class="title-bar" style="height: 43px">
-         <view class="icon" @click="back" v-if="!isHome">
-            <image src="../static/left.png"></image>
-         </view>
-         <view class="icon" @click="home" v-else>
-            <image src="../static/home.png"></image>
-         </view>
-         {{ pageTitle }}
-      </view>
-      <!-- #endif -->
       <view class="page-msg">
          <view class="title">
-            {{ current ? '快速登录' : '账号登录' }}
+            {{ currentTabIndex === 0 ? '密码登录' : '验证码注册' }}
          </view>
          <view class="tip"> 首次登录会自动注册 </view>
       </view>
       <view class="page-form">
          <view class="animate-fadeIn">
-            <!-- 登录方式切换 -->
-            <view class="login-method-switch">
-               <view
-                  :class="[
-                     'method-tab',
-                     loginMethod === 'password' ? 'active' : ''
-                  ]"
-                  @click="toggleLoginMethod('password')">
-                  密码登录
-               </view>
-               <view
-                  :class="[
-                     'method-tab',
-                     loginMethod === 'verification' ? 'active' : ''
-                  ]"
-                  @click="toggleLoginMethod('verification')">
-                  验证码注册
-               </view>
-            </view>
+            <!-- 使用TnSwitchTab组件实现登录方式切换 -->
+            <tn-switch-tab
+               v-model="currentTabIndex"
+               active-bg-color
+               active-text-color="#0AD9EE"
+               inactive-bg-color="#D1E7FE"
+               :tabs="tabs">
+               <view class="centext">
+                  <!-- 密码登录表单 -->
+                  <view v-if="currentTabIndex === 0" class="temp">
+                     <!-- 登录表单 -->
+                     <tn-form-item
+                        label="账号/邮箱"
+                        label-position="top"
+                        class="item">
+                        <tn-input
+                           type="text"
+                           placeholder="请输入账号或邮箱"
+                           placeholder-class="placeholder"
+                           v-model="loginForm.userAccount"
+                           :adjust-position="false" />
+                     </tn-form-item>
+                     <tn-form-item
+                        label="密码"
+                        label-position="top"
+                        class="item">
+                        <tn-input
+                           type="password"
+                           placeholder="请输入密码"
+                           placeholder-class="placeholder"
+                           v-model="loginForm.userPassword"
+                           :adjust-position="false" />
+                     </tn-form-item>
+                  </view>
 
-            <view class="temp" v-if="loginMethod === 'password'">
-               <!-- 登录表单 -->
-               <view class="item">
-                  <input
-                     type="text"
-                     placeholder="请输入账号或邮箱"
-                     placeholder-class="placeholder"
-                     v-model="loginForm.userAccount"
-                     :adjust-position="false" />
-               </view>
-               <view class="item">
-                  <input
-                     type="password"
-                     placeholder="请输入密码"
-                     placeholder-class="placeholder"
-                     v-model="loginForm.userPassword"
-                     :adjust-position="false" />
-               </view>
-            </view>
+                  <!-- 验证码注册表单 -->
+                  <view v-if="currentTabIndex === 1" class="temp">
+                     <tn-form-item
+                        label="邮箱"
+                        label-position="top"
+                        class="item">
+                        <tn-input
+                           type="text"
+                           placeholder="请输入邮箱"
+                           placeholder-class="placeholder"
+                           v-model="registerForm.userAccount"
+                           :adjust-position="false" />
+                     </tn-form-item>
+                     <!-- 密码输入区域 -->
+                     <tn-form-item
+                        label="密码"
+                        label-position="top"
+                        class="item">
+                        <tn-input
+                           type="password"
+                           placeholder="请登录密码"
+                           placeholder-class="placeholder"
+                           v-model="registerForm.userPassword"
+                           :adjust-position="false" />
+                     </tn-form-item>
+                     <tn-form-item
+                        label="确认密码"
+                        label-position="top"
+                        class="item">
+                        <tn-input
+                           type="password"
+                           placeholder="请确认密码"
+                           placeholder-class="placeholder"
+                           v-model="registerForm.checkPassword"
+                           :adjust-position="false" />
+                     </tn-form-item>
+                     <tn-form-item
+                        label="验证码"
+                        label-position="top"
+                        class="item acea-row row-between-wrapper">
+                        <tn-input
+                           type="number"
+                           placeholder="请输入验证码"
+                           placeholder-class="placeholder"
+                           :maxlength="6"
+                           class="codetn-input"
+                           v-model="registerForm.planetCode"
+                           :adjust-position="false" />
+                        <view class="line"></view>
+                        <button
+                           class="code !text-[0.8em]"
+                           :class="countdown > 0 ? 'on' : ''"
+                           :disabled="countdown > 0"
+                           @click="sendVerificationCode()">
+                           {{
+                              countdown > 0
+                                 ? `${countdown}秒后重发`
+                                 : '获取验证码'
+                           }}
+                        </button>
+                     </tn-form-item>
+                  </view>
 
-            <!-- 验证码输入区域 -->
-            <view class="temp" v-else>
-               <view class="item">
-                  <input
-                     type="text"
-                     placeholder="请输入邮箱"
-                     placeholder-class="placeholder"
-                     v-model="registerForm.userAccount"
-                     :adjust-position="false" />
+                  <!-- <view class="btn" @click="handleLogin"> 登录 </view> -->
+                  <wd-button
+                     @click="
+                        currentTabIndex === 0 ? handleLogin : handleRegister
+                     "
+                     class="w-full"
+                     type="success">
+                     {{ currentTabIndex === 0 ? '登录' : '注册' }}
+                  </wd-button>
                </view>
-               <!-- 密码输入区域 -->
-               <view class="item">
-                  <input
-                     type="password"
-                     placeholder="请登录密码"
-                     placeholder-class="placeholder"
-                     v-model="registerForm.userPassword"
-                     :adjust-position="false" />
-               </view>
-               <view class="item">
-                  <input
-                     type="password"
-                     placeholder="请确认密码"
-                     placeholder-class="placeholder"
-                     v-model="registerForm.checkPassword"
-                     :adjust-position="false" />
-               </view>
-               <view class="item acea-row row-between-wrapper">
-                  <input
-                     type="number"
-                     placeholder="请输入验证码"
-                     placeholder-class="placeholder"
-                     :maxlength="6"
-                     class="codeInput"
-                     v-model="registerForm.planetCode"
-                     :adjust-position="false" />
-                  <view class="line"></view>
-                  <button
-                     class="code !text-[0.8em]"
-                     :class="countdown > 0 ? 'on' : ''"
-                     :disabled="countdown > 0"
-                     @click="sendVerificationCode()">
-                     {{ countdown > 0 ? `${countdown}秒后重发` : '获取验证码' }}
-                  </button>
-               </view>
-            </view>
-
-            <!-- <view class="btn" @click="handleLogin"> 登录 </view> -->
-            <wd-button
-               v-if="loginMethod === 'password'"
-               @click="handleLogin"
-               class="w-full"
-               type="success">
-               登录
-            </wd-button>
-            <wd-button
-               v-else
-               @click="handleRegister"
-               class="w-full"
-               type="success">
-               注册
-            </wd-button>
+            </tn-switch-tab>
          </view>
       </view>
    </view>
@@ -131,6 +127,7 @@ import bg from '@/static/imgs/bg.png';
 import { useRouter } from 'uni-mini-router';
 import { useStore } from '@/store/user';
 import { UserLogin, UserGetVerifyCode, UserRegister } from '@/api/user';
+
 import { sockeStore } from '@/store/socke';
 
 const webstore = sockeStore();
@@ -138,8 +135,8 @@ const router = useRouter();
 const store = useStore();
 // 登录表单数据
 const loginForm = reactive({
-   userAccount: 'music123',
-   userPassword: '12345678'
+   userAccount: '',
+   userPassword: ''
 });
 // 验证码倒计时
 const countdown = ref(0);
@@ -147,10 +144,10 @@ let countdownTimer: number | null = null;
 
 // 注册表单数据
 const registerForm = reactive({
-   checkPassword: '12345678',
+   checkPassword: '',
    planetCode: '',
-   userAccount: '1411369154@qq.com',
-   userPassword: '12345678'
+   userAccount: '',
+   userPassword: ''
 });
 // 新增的辅助变量和方法
 const current = ref(false);
@@ -161,13 +158,11 @@ const colorStyle = ref({
 });
 // 发送验证码
 type SendType = 'login' | 'register';
-// 登录方式切换
-const loginMethod = ref<'password' | 'verification'>('password');
+// 当前选中的标签索引
+const currentTabIndex = ref(0);
 
-// 切换登录方式
-const toggleLoginMethod = (method: 'password' | 'verification') => {
-   loginMethod.value = method;
-};
+// 标签列表
+const tabs = ['密码登录', '验证码注册'];
 
 const sendVerificationCode = async () => {
    if (!registerForm.userAccount) {
@@ -298,12 +293,12 @@ const handleLogin = () => {
 
          uni.showToast({
             title: '登录成功',
-            icon: 'success',
+            icon: 'none',
             duration: 1500,
             success: () => {
                // 延迟跳转防止提示被覆盖
                setTimeout(() => {
-                  router.pushTab('/pages/tabar/home/index');
+                  router.pushTab({ name: 'tabar' });
                }, 1500);
             }
          });
@@ -321,7 +316,7 @@ const handleRegister = async () => {
    if (res.code == 0) {
       uni.showToast({
          title: '注册成功',
-         icon: 'success',
+         icon: 'none',
          duration: 1500,
          success: () => {
             // 延迟跳转防止提示被覆盖
@@ -341,9 +336,7 @@ const handleRegister = async () => {
                webstore.websocke(res.data.id);
             }, 1000);
             setTimeout(() => {
-               router.push({
-                  path: '/pages/login/personal/index'
-               });
+               router.push({ nane: 'personal' });
             }, 1500);
          }
       });
@@ -396,7 +389,7 @@ const home = () => {
 }
 
 // 复选框样式（修复深度选择器语法）
-::v-deep checkbox .wx-checkbox-input.wx-checkbox-input-checked {
+::v-deep checkbox .wx-checkbox-tn-input.wx-checkbox-tn-input-checked {
    border: 1px solid var(--view-theme) !important;
    background-color: var(--view-theme) !important;
    width: 28rpx;
@@ -410,10 +403,13 @@ const home = () => {
 
 // 页面容器
 .wrapper {
-   background-color: #fff;
-   min-height: 100vh;
+   background: linear-gradient(140deg, #9dd3ff, #ecf1f9);
+   height: 100vh;
+   width: 100vw;
    position: relative;
-   padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+   display: flex;
+   flex-direction: column;
+   justify-content: flex-end;
 }
 
 // 背景图区域
@@ -440,6 +436,7 @@ const home = () => {
       font-weight: 500;
       color: #333;
       line-height: 68rpx;
+      font-weight: bold;
       margin: 0 0 16rpx 0;
    }
 
@@ -452,69 +449,41 @@ const home = () => {
    }
 }
 
-// 登录方式切换样式
-.login-method-switch {
-   display: flex;
+// TnSwitchTab 组件样式定制
+:deep(.tn-switch-tab) {
    margin-bottom: 32rpx;
-   border-radius: 45rpx;
-   background: #f5f5f5;
-   overflow: hidden;
+}
 
-   .method-tab {
-      flex: 1;
-      height: 72rpx;
-      line-height: 72rpx;
-      text-align: center;
-      font-size: 30rpx;
-      color: #666;
-      transition: all 0.3s ease;
-
-      &.active {
-         background: var(--view-theme);
-         color: #fff;
-      }
+// 定制选中和未选中状态的颜色
+:deep(.tn-switch-tab__tab) {
+   &.tn-switch-tab__tab--active {
+      background-color: var(--view-theme);
+      color: #fff;
    }
 }
 
+:deep() {
+   .wd-button {
+      border-radius: 0 !important;
+   }
+   .tn-form-item__label {
+      color: #9c9c9c;
+   }
+}
+.tn-input--input {
+   background: #f3f9fe !important;
+}
 // 表单区域
 .page-form {
    box-sizing: border-box;
-   width: 606rpx;
+   width: 90%;
+
    margin: 100rpx auto 0;
    z-index: 2;
    position: relative;
 
    .item {
-      box-sizing: border-box;
-      width: 100%;
-      height: 88rpx;
-      background: #f5f5f5;
-      border-radius: 45rpx;
-      padding: 0 48rpx;
-      margin-bottom: 32rpx;
-      display: flex;
-      align-items: center;
-
-      input {
-         width: 100%;
-         height: 100%;
-         font-size: 32rpx;
-         background: transparent;
-         border: none;
-         outline: none;
-         color: #333;
-
-         &::placeholder {
-            color: #bbb;
-            font-size: 28rpx;
-         }
-      }
-   }
-
-   // 验证码输入框（修复类名拼写错误 codeIput → codeInput）
-   input.codeInput {
-      width: 300rpx;
-      margin-right: 24rpx;
+      margin: 20px 0;
    }
 
    .line {
@@ -600,5 +569,10 @@ const home = () => {
 // 淡入动画类
 .animate-fadeIn {
    animation: fadeIn 0.3s ease-out forwards;
+}
+.centext {
+   width: 90%;
+   margin: auto;
+   min-height: 70vh;
 }
 </style>

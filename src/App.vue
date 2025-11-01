@@ -6,19 +6,32 @@ import { useRouter } from 'uni-mini-router';
 const router = useRouter();
 const websocket = sockeStore();
 const store = useStore();
+
 onLaunch(async () => {
    //初始化登录
+   console.log('App Launch');
 
-   await store.autoLogin(() => {
-      router.pushTab({
-         path: '/pages/tabar/home/index'
-      });
-      websocket.websocke(store.userInfo.id);
-   });
+   //当前环境
+   console.log('当前环境', import.meta.env);
+
+   await store.autoLogin(
+      () => {
+         router.pushTab({
+            name: 'tabar'
+         });
+         websocket.websocke(store.userInfo.id);
+      },
+      () => {
+         router.push({
+            name: 'start'
+         });
+      }
+   );
 });
 onShow(() => {});
 onHide(() => {});
 </script>
 <style lang="scss">
 @import './uni.scss';
+@import '@tuniao/tn-style/dist/uniapp/index.css';
 </style>

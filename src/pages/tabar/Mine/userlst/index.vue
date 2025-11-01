@@ -2,7 +2,7 @@
    <view class="page">
       <view class="nav-bar">
          <view class="back-btn" @click="navigateBack">
-            <wd-icon name="left"></wd-icon>
+            <wd-icon name="thin-arrow-left"></wd-icon>
          </view>
          <view class="nav-title">切换账号</view>
          <view class="empty"></view>
@@ -41,7 +41,7 @@
             <!-- 添加账号按钮 -->
             <view class="add-account-btn" @click="addAccount">
                <view class="avatar-container add-avatar">
-                  <wd-icon name="plus" size="40" color="#ccc"></wd-icon>
+                  <wd-icon name="add1" size="44px"></wd-icon>
                </view>
                <view class="add-text">添加账号</view>
             </view>
@@ -94,7 +94,7 @@ const switchUser = (user: any) => {
             // 显示登录成功提示
             uni.showToast({
                title: '切换成功',
-               icon: 'success',
+               icon: 'none',
                duration: 500,
                success: () => {
                   // 切换成功后返回上一页
@@ -149,6 +149,7 @@ const addAccount = () => {
    height: 40rpx;
    display: flex;
    align-items: center;
+
    justify-content: center;
 }
 
@@ -199,6 +200,10 @@ const addAccount = () => {
    border-radius: 50%;
    overflow: hidden;
    // 头像 hover 效果
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   color: #0bdaee;
    border: 3rpx solid transparent;
    transition: border-color 0.3s ease;
 }

@@ -14,8 +14,8 @@
             </wd-tab>
          </block>
       </wd-tabs>
-      <view class="but">
-         <wd-icon @click="show = true" name="chat" size="22px"></wd-icon>
+      <view class="but" v-if="tab == 0">
+         <wd-icon @click="show = true" name="setting"></wd-icon>
       </view>
       <view v-if="show" class="popup-overlay" @click="handleClose"></view>
       <view v-if="show" class="popup-container">
@@ -299,6 +299,12 @@ const refreshLocation = () => {
    top: var(--status-bar-height);
    z-index: 99;
    right: 15rpx;
+   display: flex;
+   justify-items: center;
+   align-items: center;
+   top: 15rpx;
+   font-size: 1.2em;
+   color: rgba(0, 0, 0, 0.5);
 }
 
 /* 弹出层样式 */

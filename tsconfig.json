@@ -22,7 +22,7 @@
       // "outDir": "./dist",
       "outDir": "./Scripts/TSOutput",
       "lib": ["esnext", "dom"],
-      "types": ["@dcloudio/types"]
+      "types": ["@dcloudio/types", "@tuniao/tnui-vue3-uniapp/global.d.ts"]
    },
    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
    /* 用来排除哪些ts文件需要被编译 */

@@ -267,7 +267,7 @@ const handleFollow = () => {
          if (res.code === 0) {
             uni.showToast({
                title: '取消关注成功',
-               icon: 'success'
+               icon: 'none'
             });
             isFollowing.value = !isFollowing.value;
          }
@@ -280,7 +280,7 @@ const handleFollow = () => {
          if (res.code === 0) {
             uni.showToast({
                title: '关注成功',
-               icon: 'success'
+               icon: 'none'
             });
             isFollowing.value = !isFollowing.value;
          }

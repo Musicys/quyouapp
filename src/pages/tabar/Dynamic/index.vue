@@ -15,6 +15,9 @@
       <view class="but" @click="toSubmit">
          <wd-icon name="chat"></wd-icon>
       </view>
+      <view class="post-btn" @click="router.push({ name: 'sumbitfrom' })">
+         <wd-icon name="add"></wd-icon>
+      </view>
    </view>
 </template>
 

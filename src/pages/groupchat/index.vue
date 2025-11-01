@@ -4,12 +4,6 @@
       <view class="chat-header">
          <view class="header-left" @click="goBack">
             <text class="back-icon">←</text>
-
-            <view
-               class="unread-badge"
-               v-if="groupChat && groupChat.lookCount > 0">
-               {{ groupChat.lookCount > 99 ? '99+' : groupChat.lookCount }}
-            </view>
          </view>
 
          <view class="header-center">
@@ -61,33 +55,45 @@
                :class="{ 'my-message': isCurrentUser(message.userid) }">
                <!-- 头像 -->
 
-               <view class="avatar">
-                  <image
-                     :src="message.avatarUrl?.replace(/`/g, '') || ''"
-                     mode="aspectFill"
-                     class="avatar-img"></image>
-               </view>
+               <template v-if="message.type != 1">
+                  <view class="avatar">
+                     <image
+                        :src="message.avatarUrl?.replace(/`/g, '') || ''"
+                        mode="aspectFill"
+                        class="avatar-img"></image>
+                  </view>
 
-               <!-- 消息内容 -->
-               <view class="message-content">
-                  <!-- 用户名和群主标识 -->
-                  <view class="sender-info">
-                     <text class="username">{{ message.username }}</text>
-                     <text class="admin-badge" v-if="isAdmin(message.userid)"
-                        >群主</text
+                  <!-- 消息内容 -->
+                  <view class="message-content">
+                     <!-- 用户名和群主标识 -->
+                     <view class="sender-info">
+                        <text class="username">{{ message.username }}</text>
+                        <text class="admin-badge" v-if="isAdmin(message.userid)"
+                           >群主</text
+                        >
+                     </view>
+
+                     <!-- 消息气泡 -->
+                     <view class="message-bubble">
+                        <text class="message-text">{{ message.context }}</text>
+                     </view>
+
+                     <!-- 时间戳 -->
+                     <text class="message-time">{{
+                        formatTime(message.createtime)
+                     }}</text>
+                  </view>
+               </template>
+               <template v-else>
+                  <!-- 用户加入聊群 -->
+                  <view class="message-content join-message">
+                     <text
+                        class="message-text join-message-text"
+                        style="color: #999999"
+                        >{{ message.context + '加入群聊' }}</text
                      >
                   </view>
-
-                  <!-- 消息气泡 -->
-                  <view class="message-bubble">
-                     <text class="message-text">{{ message.context }}</text>
-                  </view>
-
-                  <!-- 时间戳 -->
-                  <text class="message-time">{{
-                     formatTime(message.createtime)
-                  }}</text>
-               </view>
+               </template>
             </view>
 
             <!-- 占位元素，确保滚动到底部时最新消息完全显示 -->
@@ -144,6 +150,7 @@ import { useStore } from '@/store/user';
 import { useRoute, useRouter } from 'uni-mini-router';
 import { onMounted, ref, nextTick } from 'vue';
 import { getChatMsgList } from '@/api/chat';
+import { onHide } from '@dcloudio/uni-app';
 const route = useRoute();
 const router = useRouter();
 const { userInfo } = useStore();
@@ -382,9 +389,10 @@ onMounted(() => {
    form.value.chatId = Number(route.params.groupId) || '';
    // 尝试从ChatList中获取群聊数据
    if (ChatList && Array.isArray(ChatList)) {
-      ChatList.forEach(item => {
+      ChatList.forEach((item, index) => {
          if (item.id == route.params.groupId) {
             groupChat.value = item;
+            ChatList[index].lookCount = 0;
             // 更新sendList
             sendList.value = item.sendList || [];
             if (sendList.value.length < form.value.page * form.value.pageSize) {
@@ -399,6 +407,15 @@ onMounted(() => {
    // 滚动到底部
    nextTick(() => {
       scrollToBottom();
+   });
+});
+
+onUnload(() => {
+   ChatList.forEach((item, index) => {
+      if (item.id == route.params.groupId) {
+         ChatList[index].lookCount = 0;
+         // 更新sendList
+      }
    });
 });
 </script>
@@ -552,6 +569,24 @@ onMounted(() => {
 
 .message-item.my-message .message-content {
    text-align: right;
+}
+
+/* 加入群聊消息样式 - 居中显示 */
+.message-content.join-message {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   max-width: 100%;
+   margin: 20rpx 0;
+}
+
+.join-message-text {
+   background-color: rgba(0, 0, 0, 0.05);
+   padding: 8rpx 30rpx;
+   border-radius: 20rpx;
+   font-size: 26rpx;
+   color: #666;
+   text-align: center;
 }
 
 .sender-info {

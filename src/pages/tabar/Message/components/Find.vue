@@ -103,15 +103,13 @@ const getLatestMessageContent = (friend: Friend): string => {
 
 // 获取未读消息数量
 const getUnreadCount = (friend: Friend): number => {
-   console.log(friend);
-
    if (!friend.sendList || friend.sendList.length === 0) {
       return 0;
    }
 
    // 假设yeslook为'0'表示未读
    return friend.sendList.filter(
-      msg => msg.yeslook === '0' && msg.sendid == user.userInfo.id
+      msg => msg.yeslook === 0 && msg.sendid == user.userInfo.id
    ).length;
 };
 

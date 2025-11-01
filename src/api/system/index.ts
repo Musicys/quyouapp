@@ -45,3 +45,17 @@ export const SystemTag = (data: {
 }) => {
    return HttpPost('/api/system/usertaglist', data);
 };
+
+/**
+ * @description 获取查看我的统计
+ */
+
+export const MyViewStatistics = () => {
+   return HttpGet('/api/system/mynumber');
+};
+/**
+ * @description 获取我查看的统计
+ */
+export const YoUViewStatistics = () => {
+   return HttpGet('/api/system/looknumber');
+};

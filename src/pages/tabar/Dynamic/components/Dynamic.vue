@@ -17,7 +17,9 @@
          <DynamicCart :dynamic="item"></DynamicCart>
       </view>
 
-      <template #bottom> </template>
+      <template #bottom>
+         <NavBottom></NavBottom>
+      </template>
    </z-paging>
 </template>
 
@@ -28,6 +30,7 @@ import { useStore } from '@/store/user';
 import Navtop from '@/components/nav-top/index.vue';
 import DynamicCart from '@/components/dynamic-cart/index.vue';
 import { onShow } from '@dcloudio/uni-app';
+import NavBottom from '@/components/nav-buttom/index.vue';
 const store = useStore();
 const paging = ref(null);
 

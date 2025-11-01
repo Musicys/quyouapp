@@ -69,7 +69,10 @@ export const useStore = defineStore(
          }
       };
 
-      const autoLogin = (fun: () => Void = () => {}) => {
+      const autoLogin = (
+         fun: () => Void = () => {},
+         err: () => Void = () => {}
+      ) => {
          const defaultToken = Tokens.value.find(item => item.is_default === 1);
          if (defaultToken) {
             UserLogin(defaultToken.tokens).then(res => {
@@ -78,6 +81,8 @@ export const useStore = defineStore(
                   fun();
                }
             });
+         } else {
+            err();
          }
       };
       return {
