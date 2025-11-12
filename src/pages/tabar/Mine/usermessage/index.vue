@@ -14,32 +14,50 @@
       </view>
       <!-- 顶部用户信息展示区 -->
 
+      <view class="bgimg">
+         <image
+            src="https://img.shetu66.com/2023/07/14/1689302077000124.png"></image>
+      </view>
+
       <!-- 顶部用户信息展示区 -->
       <view class="user-info-section">
          <view class="header-bg"></view>
+         <view class="avatar-container">
+            <image
+               :src="
+                  userInfo.avatarUrl
+                     ? userInfo.avatarUrl.trim()
+                     : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
+               "
+               mode="aspectFill"
+               class="avatar"></image>
+            <view
+               v-if="userInfo.login === 1"
+               class="status-dot"
+               :class="{ online: userInfo.login === 1 }"></view>
+         </view>
          <view class="user-profile">
             <!-- 用户头像 -->
-            <view class="avatar-container">
-               <image
-                  :src="
-                     userInfo.avatarUrl
-                        ? userInfo.avatarUrl.trim()
-                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
-                  "
-                  mode="aspectFill"
-                  class="avatar"></image>
-               <view
-                  class="status-dot"
-                  :class="{ online: userInfo.login === 1 }"></view>
-            </view>
 
             <!-- 用户基本信息 -->
             <view class="user-basic-info">
                <view class="username-section">
-                  <text class="username">{{
-                     userInfo.username || userInfo.userAccount
-                  }}</text>
-                  <text class="user-id">#{{ userInfo.id || '000000' }}</text>
+                  <view class="box">
+                     <tn-icon
+                        :name="
+                           userInfo.gender === 1 ? 'sex-male' : 'sex-female'
+                        "
+                        size="38"
+                        :color="userInfo.gender === 1 ? '#4caf50' : '#f44336'"
+                        bold />
+
+                     <text class="username">{{
+                        userInfo.username || userInfo.userAccount
+                     }}</text>
+                  </view>
+                  <text class="user-id"
+                     >用户编号：{{ userInfo.id || '000000' }}</text
+                  >
                </view>
                <view class="user-meta">
                   <text class="age">{{ userInfo.age || '--' }}岁</text>
@@ -70,46 +88,11 @@
                {{ tag }}
             </view>
          </view>
-      </view>
-
-      <!-- 中间功能模块区域 -->
-      <view class="feature-section">
-         <view class="feature-grid">
-            <!-- 开通星球 -->
-            <view class="feature-card">
-               <view class="feature-icon planet-icon"></view>
-               <text class="feature-title">开通星球</text>
-               <text class="feature-subtitle">{{
-                  userInfo.planetCode || '未开通'
-               }}</text>
-            </view>
-
-            <!-- 财富等级 -->
-            <view class="feature-card">
-               <view class="feature-icon wealth-icon"></view>
-               <text class="feature-title">财富等级</text>
-               <text class="feature-subtitle"
-                  >Lv.{{ Math.floor(Math.random() * 10) + 1 }}</text
-               >
-            </view>
-
-            <!-- 魅力值 -->
-            <view class="feature-card">
-               <view class="feature-icon charm-icon"></view>
-               <text class="feature-title">魅力值</text>
-               <text class="feature-subtitle">{{
-                  Math.floor(Math.random() * 1000)
-               }}</text>
-            </view>
-
-            <!-- 获赞数 -->
-            <view class="feature-card">
-               <view class="feature-icon likes-icon"></view>
-               <text class="feature-title">获赞数</text>
-               <text class="feature-subtitle">{{
-                  Math.floor(Math.random() * 500)
-               }}</text>
-            </view>
+         <view class="feature-section">
+            <tn-photo-album
+               :data="JSON.parse(userInfo.imagsarr || '[]')"
+               :column="5"
+               max="9" />
          </view>
       </view>
 
@@ -215,7 +198,7 @@
 
 <script setup lang="ts">
 import { useStore } from '@/store/user';
-import { useRouter } from 'uni-mini-router';
+import { useRouter, useRoute } from 'uni-mini-router';
 import { getDynamicById, deleteDynamic } from '@/api/dynamic';
 import { onMounted, reactive, ref, watch } from 'vue';
 import MassageDirCart from '@/components/massage-dir-cart/index.vue';
@@ -226,6 +209,7 @@ import { Lovemygooddrs } from '@/api/love';
 import DynamicCart from '@/components/dynamic-cart/index.vue';
 const { userInfo } = useStore();
 const router = useRouter();
+const route = useRoute();
 
 const Tab = reactive([
    {
@@ -325,6 +309,7 @@ const setData = () => {
 watch(selectTab, (newValue, oldValue) => {
    setData();
 });
+
 onMounted(() => {
    setData();
 });
@@ -377,12 +362,14 @@ $accent-purple: #ea80fc;
 // 顶部用户信息展示区
 .user-info-section {
    position: relative;
-   background: linear-gradient(135deg, $primary-purple, $dark-purple);
+   background: black;
+   border-radius: 30rpx 30rpx 0 0;
 
    padding-top: 100rpx;
    padding-bottom: 30rpx;
    color: white;
    box-shadow: 0 4rpx 20rpx rgba(156, 39, 176, 0.3);
+   margin-top: 15vh;
 }
 
 .header-bg {
@@ -400,13 +387,20 @@ $accent-purple: #ea80fc;
 
 .user-profile {
    display: flex;
-   align-items: center;
+
    padding: 0 30rpx;
+   flex-direction: column;
+   justify-content: start;
    margin-bottom: 20rpx;
 }
 
 .avatar-container {
-   position: relative;
+   // position: relative;
+   // --h: 50rpx;
+   position: absolute;
+   top: -50rpx;
+   left: 50rpx;
+
    margin-right: 25rpx;
 }
 
@@ -419,10 +413,10 @@ $accent-purple: #ea80fc;
 
 .status-dot {
    position: absolute;
-   bottom: 8rpx;
-   right: 8rpx;
-   width: 24rpx;
-   height: 24rpx;
+   bottom: 15rpx;
+   right: 35rpx;
+   width: 30rpx;
+   height: 30rpx;
    border-radius: 50%;
    background-color: rgba(255, 255, 255, 0.5);
    border: 3rpx solid white;
@@ -438,14 +432,21 @@ $accent-purple: #ea80fc;
 
 .username-section {
    display: flex;
-   align-items: center;
+   // align-items: center;
    margin-bottom: 10rpx;
+   flex-direction: column;
+   justify-content: start;
 }
 
 .username {
-   font-size: 42rpx;
+   font-size: 32rpx;
    font-weight: 700;
-   margin-right: 15rpx;
+   margin: 10rpx;
+}
+.box {
+   display: flex;
+
+   align-items: center;
 }
 
 .user-id {
@@ -492,8 +493,7 @@ $accent-purple: #ea80fc;
 
 // 中间功能模块区域
 .feature-section {
-   padding: 30rpx;
-   margin-bottom: 20rpx;
+   padding: 10rpx 30rpx;
 }
 
 .feature-grid {
@@ -603,7 +603,7 @@ $accent-purple: #ea80fc;
 }
 
 .edit-btn {
-   background: linear-gradient(135deg, $primary-purple, $dark-purple);
+   background: black;
 }
 
 .edit-btn .btn-label {
@@ -613,7 +613,7 @@ $accent-purple: #ea80fc;
 }
 .hader {
    position: fixed;
-   height: 90rpx;
+   height: 80rpx;
 
    display: flex;
    justify-content: space-between;
@@ -655,5 +655,16 @@ $accent-purple: #ea80fc;
    font-size: 26rpx;
    color: #999;
    text-align: center;
+}
+.bgimg {
+   height: 30vh;
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   & > image {
+      width: 100%;
+      height: 100%;
+   }
 }
 </style>

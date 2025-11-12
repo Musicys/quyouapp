@@ -2,39 +2,62 @@
    <view class="dynamic-item">
       <view class="dynamic-header">
          <text class="post-time">{{
-            formatTime(item?.updatetime || item?.createTime)
+            formatTime(messageData?.updatetime || messageData?.createTime)
          }}</text>
+
+         <tn-bubble-box
+            @click="handleBubbleClick"
+            :options="bubbleOptions"
+            position="bottom">
+            <view
+               class="box"
+               style="width: 150rpx; display: flex; justify-content: flex-end">
+               <tn-icon name="more-vertical" size="36" />
+            </view>
+         </tn-bubble-box>
       </view>
-      <view class="dynamic-content">
-         <text>{{ safeValue(item?.context, '') }}</text>
+      <view class="dynamic-content" @click="handleComment">
+         <text>{{ safeValue(messageData?.context, '') }}</text>
       </view>
 
       <!-- 动态图片 (如果有) -->
-      <view class="dynamic-images" v-if="getImages(item?.imgarr).length > 0">
-         <image
-            v-for="(img, index) in getImages(item?.imgarr)"
-            :key="index"
-            :src="img || '/static/default-image.png'"
-            mode="aspectFill"
-            class="dynamic-image"></image>
+      <view
+         class="dynamic-images"
+         v-if="getImages(messageData?.imgarr).length > 0">
+         <tn-photo-album :data="getImages(messageData?.imgarr)" :column="3" />
       </view>
 
       <!-- 互动按钮 -->
       <view class="interaction-buttons">
          <view class="interaction-btn" @click="handleLike">
             <view
-               class="btn-icon like-icon"
-               :class="{ liked: item?.isLove === 1 }"></view>
-            <text class="btn-text" :class="{ 'liked-text': item?.isLove === 1 }"
-               >{{ safeNumber(item?.love, 0) }} 赞</text
+               :class="{
+                  'liked-icon': messageData?.isLove === 1,
+                  'btn-icon': true
+               }">
+               <tn-icon
+                  :name="messageData?.isLove === 1 ? 'like-fill' : 'like'"
+                  size="36"
+                  bold />
+            </view>
+            <text
+               class="btn-text"
+               :class="{ 'liked-text': messageData?.isLove === 1 }"
+               >{{ safeNumber(messageData?.love, 0) }} 赞</text
             >
          </view>
          <view class="interaction-btn" @click="handleComment">
-            <view class="btn-icon comment-icon"></view>
-            <text class="btn-text">{{ safeNumber(item?.count, 0) }} 评论</text>
+            <view class="btn-icon comment-icon">
+               <tn-icon name="message" size="36" />
+            </view>
+            <text class="btn-text"
+               >{{ safeNumber(messageData?.count, 0) }} 评论</text
+            >
          </view>
          <view class="interaction-btn" @click="handleShare">
-            <view class="btn-icon share-icon"></view>
+            <view class="btn-icon share-icon">
+               <tn-icon name="share-triangle" size="36" />
+            </view>
             <text class="btn-text">分享</text>
          </view>
       </view>
@@ -42,41 +65,47 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-
+import { computed, ref, watch } from 'vue';
+import type { BubbleBoxOption } from '@tuniao/tnui-vue3-uniapp';
+import { LoveAdd, LoveDel } from '@/api/love';
+import { useRouter } from 'uni-mini-router';
+const router = useRouter();
+// 定义组件属性 - 保持兼容性但不再依赖父组件数据
 const props = defineProps({
    item: {
       type: Object,
-      default: () => ({
-         email: '2825424566@qq.com',
-         id: 113,
-         context: '爱你优',
-         lat: 28.786364,
-         lng: 115.38681,
-         imgarr:
-            '["https://web-scoke.oss-cn-beijing.aliyuncs.com/2024/61340598739d4736a6d2c5651c9e8bc8fufu.jpg","https://web-scoke.oss-cn-beijing.aliyuncs.com/2024/03424dc598f34f89916376b5a6ea57e9fufu.jpg","https://web-scoke.oss-cn-beijing.aliyuncs.com/2024/a309d602d9c64a46baabcb6e9a411f9bfufu.jpg"]',
-         distance: 205599,
-         formatted: '205.6km',
-         count: 0,
-         love: 0,
-         userId: 26758,
-         userAccount: 'music123',
-         username: '时间褶子',
-         gender: 1,
-         age: 15,
-         avatarUrl:
-            'https://ts2.tc.mm.bing.net/th/id/OIP-C.WXtLvr1iXhwS6T1mtv9TDgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
-         isLove: 0,
-         updatetime: '2025-10-17T08:10:04.000+00:00',
-         createTime: '2025-10-09T07:19:06.000+00:00',
-         login: 1,
-         province: '江西',
-         district: '萍乡',
-         isFocus: '0'
-      })
+      default: null
    }
 });
+// 定义组件内部的响应式数据，基于父组件传递的数据进行初始化
+const messageData = ref(
+   props.item ? JSON.parse(JSON.stringify(props.item)) : {}
+);
 
+// 监听props.item变化，更新内部数据
+watch(
+   () => props.item,
+   newItem => {
+      if (newItem) {
+         messageData.value = JSON.parse(JSON.stringify(newItem));
+      }
+   },
+   { deep: true }
+);
+
+const bubbleOptions: BubbleBoxOption = [
+   { text: '删除', icon: 'delete' },
+   { text: '分享', icon: 'share-triangle' }
+];
+const handleBubbleClick = (index: number) => {
+   if (index === 0) {
+      // 删除操作
+      console.log('删除动态');
+   } else if (index === 1) {
+      // 分享操作
+      console.log('分享动态');
+   }
+};
 // 格式化时间显示
 const formatTime = (timeStr: string | null | undefined) => {
    if (!timeStr) return '';
@@ -127,10 +156,9 @@ const formatTime = (timeStr: string | null | undefined) => {
 const getImages = (imgarr: string | null | undefined): string[] => {
    if (!imgarr) return [];
    try {
-      const parsed = JSON.parse(imgarr);
+      const parsed = JSON.parse(imgarr || '[]');
       return Array.isArray(parsed) ? parsed : [];
    } catch (error) {
-      console.error('Failed to parse image array:', error);
       return [];
    }
 };
@@ -150,34 +178,62 @@ const safeNumber = (value: any, defaultValue: number = 0): number => {
 // 定义事件
 const emit = defineEmits(['like', 'comment', 'share']);
 
-const handleLike = () => {
-   if (props.item) {
-      emit('like', props.item);
+// 处理点赞功能
+const handleLike = async () => {
+   // 直接操作内部数据
+   if (messageData.value?.isLove) {
+      //取消点赞
+      let res = await LoveDel({
+         commentsId: '',
+         dynamicId: messageData.value?.id
+      });
+      if (res.code == 0) {
+         messageData.value.isLove = 0;
+         messageData.value.love = messageData.value.love - 1;
+      }
+   } else {
+      //点赞
+      let res = await LoveAdd({
+         commentsId: '',
+         dynamicId: messageData.value?.id
+      });
+      if (res.code == 0) {
+         messageData.value.isLove = 1;
+         messageData.value.love += 1;
+      }
    }
 };
 
+// 处理评论功能
 const handleComment = () => {
-   if (props.item) {
-      emit('comment', props.item);
-   }
+   // 模拟添加评论数
+   router.push({
+      name: 'datails',
+      params: {
+         dynamicId: messageData.value?.id
+      }
+   });
 };
 
+// 处理分享功能
 const handleShare = () => {
-   if (props.item) {
-      emit('share', props.item);
-   }
+   emit('share', messageData.value);
 };
 </script>
 
 <style lang="scss" scoped>
 .dynamic-item {
-   padding: 25rpx;
-   border-bottom: 1rpx solid rgba(0, 0, 0, 0.3);
-   margin-bottom: 15rpx;
+   padding: 15rpx;
+   border-bottom: 1rpx solid rgba(0, 0, 0, 0.1);
+   padding-bottom: 20rpx;
+   margin-bottom: 30rpx;
 }
 
 .dynamic-header {
    margin-bottom: 15rpx;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
 }
 
 .post-time {
@@ -194,9 +250,6 @@ const handleShare = () => {
 
 .dynamic-images {
    margin-bottom: 20rpx;
-   display: grid;
-   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
-   gap: 15rpx;
 }
 
 .dynamic-image {
@@ -223,15 +276,6 @@ const handleShare = () => {
    width: 40rpx;
    height: 40rpx;
    border-radius: 50%;
-   background-color: #f5f5f5;
-}
-
-.like-icon {
-   background-color: rgba(244, 67, 54, 0.1);
-}
-
-.comment-icon {
-   background-color: rgba(33, 150, 243, 0.1);
 }
 
 .share-icon {
@@ -248,6 +292,9 @@ const handleShare = () => {
 }
 
 .liked-text {
+   color: #f44336;
+}
+.liked-icon {
    color: #f44336;
 }
 </style>

@@ -12,10 +12,7 @@
             <view class="avatar-section">
                <view class="combined-avatar">
                   <!-- 显示最多4个头像组合 -->
-                  <image
-                     :src="group.url"
-                     class="avatar-image"
-                     style="width: 100%; height: 100%"></image>
+                  <image :src="group.url" class="avatar-image"></image>
                   <!-- 未读消息角标 -->
                   <view v-if="group.lookCount > 0" class="unread-badge">
                      {{ group.lookCount > 99 ? '99+' : group.lookCount }}
@@ -30,11 +27,6 @@
                   <view class="group-info">
                      <text class="group-name">{{ group.chatName }}</text>
                      <text class="group-count"> {{ group.count }}人</text>
-                     <view class="group-tag" v-if="group.tagName">
-                        <text class="tag-text">{{
-                           JSON.parse(group.tagName)[0]
-                        }}</text>
-                     </view>
                   </view>
                   <text class="message-time">{{
                      formatMessageTime(
@@ -63,7 +55,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { sockeStore } from '@/store/socke';
 import { useStore } from '@/store/user';
 import { useRouter } from 'uni-mini-router';
-import { formatMessageTime } from './index';
+import { formatMessageTime } from '@/util';
 
 const router = useRouter();
 const user = useStore();
@@ -115,7 +107,6 @@ onMounted(() => {});
 .group-message-container {
    width: 100%;
    min-height: 100vh;
-   background-color: #f5f7fa;
 }
 
 .group-list {
@@ -124,9 +115,7 @@ onMounted(() => {});
 
 .group-item {
    display: flex;
-   padding: 20rpx 0;
-   border-bottom: 1rpx solid #f0f0f0;
-   background-color: #fff;
+   padding: 12px 5rpx;
    margin-bottom: 10rpx;
    border-radius: 12rpx;
    &:active {
@@ -141,8 +130,6 @@ onMounted(() => {});
 
 .combined-avatar {
    position: relative;
-   width: 120rpx;
-   height: 120rpx;
    border-radius: 16rpx;
    background-color: #f0f0f0;
    overflow: hidden;
@@ -187,8 +174,9 @@ onMounted(() => {});
    flex: 1;
    display: flex;
    flex-direction: column;
-   justify-content: space-between;
-   min-height: 120rpx;
+   justify-content: center;
+   margin-right: 20rpx;
+   overflow: hidden;
 }
 
 .message-header {
@@ -205,7 +193,7 @@ onMounted(() => {});
 }
 
 .group-name {
-   font-size: 32rpx;
+   font-size: 26rpx;
    font-weight: 600;
    color: #333;
    margin-right: 8rpx;
@@ -216,7 +204,7 @@ onMounted(() => {});
 }
 
 .group-count {
-   font-size: 24rpx;
+   font-size: 22rpx;
    color: #999;
    margin-right: 12rpx;
 }
@@ -233,23 +221,23 @@ onMounted(() => {});
 }
 
 .message-time {
-   font-size: 24rpx;
+   font-size: 22rpx;
    color: #999;
 }
 
 .message-footer {
+   font-size: 24rpx;
    display: flex;
    align-items: center;
+   width: 90%;
 }
 
 .sender-name {
-   font-size: 28rpx;
    color: #666;
    margin-right: 8rpx;
 }
 
 .message-text {
-   font-size: 28rpx;
    color: #999;
    flex: 1;
    overflow: hidden;
@@ -257,8 +245,10 @@ onMounted(() => {});
    white-space: nowrap;
 }
 .avatar-image {
-   height: 100%;
-   width: 100%;
-   border-radius: 15rpx;
+   width: 95rpx;
+   height: 95rpx;
+   border-radius: 50%;
+   background-color: #f0f0f0;
+   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 </style>

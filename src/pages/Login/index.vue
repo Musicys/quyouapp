@@ -107,12 +107,7 @@
                   </view>
 
                   <!-- <view class="btn" @click="handleLogin"> 登录 </view> -->
-                  <wd-button
-                     @click="
-                        currentTabIndex === 0 ? handleLogin : handleRegister
-                     "
-                     class="w-full"
-                     type="success">
+                  <wd-button @click="submitForm" class="w-full" type="success">
                      {{ currentTabIndex === 0 ? '登录' : '注册' }}
                   </wd-button>
                </view>
@@ -129,6 +124,7 @@ import { useStore } from '@/store/user';
 import { UserLogin, UserGetVerifyCode, UserRegister } from '@/api/user';
 
 import { sockeStore } from '@/store/socke';
+import { throttle } from '@/util';
 
 const webstore = sockeStore();
 const router = useRouter();
@@ -160,11 +156,12 @@ const colorStyle = ref({
 type SendType = 'login' | 'register';
 // 当前选中的标签索引
 const currentTabIndex = ref(0);
-
+type LoginType = 'password' | 'verificationCode';
+const loginMethod = ref<LoginType>('password');
 // 标签列表
 const tabs = ['密码登录', '验证码注册'];
 
-const sendVerificationCode = async () => {
+const sendVerificationCode = throttle(async () => {
    if (!registerForm.userAccount) {
       uni.showToast({
          title: '请先输入账号',
@@ -188,18 +185,20 @@ const sendVerificationCode = async () => {
    }
 
    // 在实际应用中，这里应该调用API发送验证码
-
+   uni.showLoading({
+      title: '发送中'
+   });
    let res = await UserGetVerifyCode({ email: registerForm.userAccount });
 
    if (res.code === 0) {
+      uni.hideLoading();
       uni.showToast({
          title: '验证码已发送',
          icon: 'none'
       });
       startCountdown();
    }
-};
-
+}, 500);
 // 开始倒计时
 const startCountdown = () => {
    countdown.value = 60;
@@ -344,6 +343,14 @@ const handleRegister = async () => {
    // store.setUserInfo(registerForm.userAccount);
 
    // // 显示注册成功提示
+};
+
+const submitForm = () => {
+   if (currentTabIndex.value === 0) {
+      handleLogin();
+   } else {
+      handleRegister();
+   }
 };
 
 const back = () => {

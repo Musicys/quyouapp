@@ -18,7 +18,9 @@
          <HomeUserCart :data="item"></HomeUserCart>
       </view>
 
-      <template #bottom> </template>
+      <template #bottom>
+         <NavBottom></NavBottom>
+      </template>
    </z-paging>
 </template>
 
@@ -28,6 +30,7 @@ import NoData from '@/components/no-data/index.vue';
 import HomeUserCart from '@/components/home-user-cart/index.vue';
 import { useStore } from '@/store/user';
 import Navtop from '@/components/nav-top/index.vue';
+import NavBottom from '@/components/nav-buttom/index.vue';
 import { watch } from 'vue';
 const store = useStore();
 const paging = ref(null);

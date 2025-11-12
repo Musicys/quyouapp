@@ -1,7 +1,15 @@
 <template>
    <view class="dynamic-card">
       <!-- 头像区域 -->
-      <view class="avatar-container">
+
+      <view
+         class="avatar-container"
+         @click.stop="
+            router.push({
+               name: 'preinfo',
+               params: { userId: localDynamic.userId }
+            })
+         ">
          <view class="box">
             <image
                class="avatar"
@@ -16,14 +24,22 @@
       <!-- 内容区域 -->
       <view class="content-container">
          <!-- 第一行：用户信息和关注按钮 -->
-         <view class="user-info-row">
+         <view @click="handleComment" class="user-info-row">
             <view class="user-info">
                <view class="top">
-                  <text class="username">{{ localDynamic.username }}</text>
+                  <tn-icon
+                     :name="
+                        localDynamic.gender === 1 ? 'sex-male' : 'sex-female'
+                     "
+                     size="36"
+                     :color="localDynamic.gender === 1 ? '#4caf50' : '#f44336'"
+                     bold />
+                  <text class="username !ml-1 !mr-1">{{
+                     localDynamic.username
+                  }}</text>
                   <template v-if="genderText || localDynamic.age">
-                     <text class="user-info-item">
-                        {{ genderText
-                        }}{{ localDynamic.age ? localDynamic.age + '岁' : '' }}
+                     <text class="user-info-item !mr-1">
+                        {{ localDynamic.age ? localDynamic.age + '岁' : '' }}
                      </text>
                   </template>
                   <text class="ip-location" v-if="localDynamic.province">
@@ -41,6 +57,7 @@
                size="small"
                :disabled="isOwnDynamic"
                @click.stop="handleFollow"
+               :custom-class="{ disabled: isOwnDynamic }"
                :loading="isFollowing">
                {{
                   isOwnDynamic
@@ -53,31 +70,18 @@
          </view>
 
          <!-- 第二行：动态内容 -->
-         <view class="dynamic-content">
+         <view @click="handleComment" class="dynamic-content">
             <text>{{ localDynamic.context }}</text>
          </view>
 
          <!-- 第三行：图片展示 -->
          <view class="images-container" v-if="imageList.length > 0">
-            <view
-               class="image-item"
-               v-for="(img, index) in imageList"
-               :key="index">
-               <image
-                  :src="img"
-                  mode="heightFix"
-                  class="dynamic-image"
-                  alt="动态图片"></image>
-            </view>
+            <tn-photo-album :data="imageList" :column="3" max="9" />
          </view>
 
          <!-- 底部：互动区域 -->
          <view class="action-bar">
-            <view class="action-item chat-btn" @click.stop="handleChat">
-               <wd-icon name="chat-o" size="22"></wd-icon>
-               <text class="action-text">私聊</text>
-            </view>
-            <template v-if="localDynamic.formatted">
+            <template v-if="localDynamic.formatted && IsShowAddress">
                <wd-icon name="location" size="20"></wd-icon>
                <text>{{ localDynamic.formatted }}</text></template
             >
@@ -87,14 +91,24 @@
                   class="action-item like-btn"
                   @click.stop="handleLike"
                   :class="{ liked: localDynamic.isLove === 1 }">
-                  <wd-icon name="heart" size="22px"></wd-icon>
+                  <tn-icon
+                     :name="localDynamic.isLove === 1 ? 'like-fill' : 'like'"
+                     size="36"
+                     bold />
                   <text class="action-text">{{ localDynamic.love }}</text>
                </view>
                <view
                   class="action-item comment-btn"
                   @click.stop="handleComment">
-                  <wd-icon name="comment" size="22px"></wd-icon>
+                  <tn-icon name="message" size="36" bold />
                   <text class="action-text">{{ localDynamic.count }}</text>
+               </view>
+               <view
+                  v-if="!isOwnDynamic"
+                  class="action-item chat-btn"
+                  @click="addFriend">
+                  <tn-icon name="reply" size="36" bold />
+                  <text class="action-text">打招呼</text>
                </view>
             </view>
          </view>
@@ -105,13 +119,19 @@
 <script setup lang="ts">
 import { useStore } from '@/store/user';
 import { Dynamic } from '@/api/dynamic/model/type';
-import { computed, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'uni-mini-router';
 import { FocusAdd, FocusDel } from '@/api/focus';
 import { LoveAdd, LoveDel } from '@/api/love';
+import { sockeStore } from '@/store/socke';
 const router = useRouter();
 const store = useStore();
+const { send, IsFriend } = sockeStore();
 
+//是否显示地址
+const IsShowAddress = computed(() => {
+   return store.userInfo?.lat ? true : false;
+});
 // 定义当前用户类型
 interface CurrentUser {
    province?: string;
@@ -132,7 +152,35 @@ const isLiking = ref(false);
 
 // 创建本地响应式数据副本，避免直接操作props
 const localDynamic = ref<Dynamic>({ ...props.dynamic });
+//私聊
+const addFriend = () => {
+   const isFriend = IsFriend(localDynamic.value.userId);
+   if (isFriend) {
+      router.push({
+         name: 'chat',
+         params: { sendid: localDynamic.value.userId }
+      });
+   } else {
+      send(
+         JSON.stringify({
+            id: store.userInfo.id,
+            type: 4,
+            sendid: localDynamic.value.userId,
+            sendteam: null,
+            context: '你好啊，我们开始聊天把-.-',
+            sendTime: new Date()
+         })
+      );
+      setTimeout(() => {
+         router.push({
+            name: 'chat',
+            params: { sendid: localDynamic.value.userId }
+         });
+      }, 500);
+   }
+};
 
+onMounted(() => {});
 // 监听props变化，更新本地副本
 watch(
    () => props.dynamic,
@@ -221,15 +269,6 @@ const handleFollow = async () => {
    }
 };
 
-// 私聊
-const handleChat = () => {
-   console.log(`开始私聊: ${localDynamic.value.userAccount}`);
-   // 跳转到聊天页面
-   uni.navigateTo({
-      url: `/pages/chat?userId=${localDynamic.value.userId}&username=${encodeURIComponent(localDynamic.value.username)}&avatarUrl=${encodeURIComponent(localDynamic.value.avatarUrl)}`
-   });
-};
-
 // 点赞/取消点赞
 const handleLike = async () => {
    if (isLiking.value) return;
@@ -278,8 +317,8 @@ const handleLike = async () => {
 // 评论
 const handleComment = () => {
    router.push({
-      path: '/pages/tabar/dynamic/datails/index',
-      query: {
+      name: 'datails',
+      params: {
          dynamicId: localDynamic.value.id
       }
    });
@@ -324,7 +363,7 @@ const formattedTime = computed(() => {
    display: flex;
    padding: 16rpx;
    border-bottom: 1px solid #f5f5f5;
-   background-color: #fff;
+
    &:last-child {
       border-bottom: none;
    }
@@ -361,6 +400,7 @@ const formattedTime = computed(() => {
       flex: 1;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
 
       .user-info-row {
          display: flex;
@@ -371,10 +411,10 @@ const formattedTime = computed(() => {
 
          .user-info {
             display: flex;
-            flex-wrap: wrap;
+            // flex-wrap: wrap;
+            flex-direction: column;
             gap: 8rpx 12rpx;
-            align-items: center;
-            flex-direction: row;
+            align-items: start;
 
             .username {
                font-size: 28rpx;
@@ -396,8 +436,18 @@ const formattedTime = computed(() => {
                padding: 2rpx 8rpx;
                border-radius: 10rpx;
             }
+            .top {
+               display: flex;
+               justify-content: center;
+               align-items: flex-end;
+            }
             .time {
+               display: flex;
+               justify-content: center;
+               align-items: start;
                font-size: 20rpx;
+               height: 100%;
+
                color: #918b8b;
             }
          }
@@ -413,10 +463,6 @@ const formattedTime = computed(() => {
       }
 
       .images-container {
-         display: grid;
-         grid-template-columns: repeat(3, 1fr);
-
-         gap: 8rpx;
          margin-bottom: 16rpx;
 
          .image-item {
@@ -439,13 +485,14 @@ const formattedTime = computed(() => {
          display: flex;
          align-items: center;
          color: #666;
-         font-size: 24rpx;
+
          margin-top: 8rpx;
 
          .action-item {
             display: flex;
             align-items: center;
             margin-right: 32rpx;
+            font-size: 28rpx;
             cursor: pointer;
             padding: 4rpx 0;
 
@@ -481,5 +528,15 @@ const formattedTime = computed(() => {
          }
       }
    }
+}
+
+.action-text {
+   margin-left: 10rpx;
+}
+
+.disabled {
+   background: green !important;
+   color: #fff !important;
+   border: none !important;
 }
 </style>

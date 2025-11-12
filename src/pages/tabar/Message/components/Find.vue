@@ -17,8 +17,9 @@
                   class="avatar"
                   mode="aspectFill" />
                <view
+                  v-if="friend.login"
                   class="online-indicator"
-                  :class="{ online: friend.login === 1 }"></view>
+                  :class="{ online: true }"></view>
             </view>
 
             <!-- 信息部分 -->
@@ -64,7 +65,8 @@ import { sockeStore } from '@/store/socke';
 import { useStore } from '@/store/user';
 import { User } from '@/api/user/model/type';
 import { useRouter } from 'uni-mini-router';
-import { formatMessageTime } from './index';
+import { formatMessageTime } from '@/util';
+
 const router = useRouter();
 const user = useStore();
 const socke = sockeStore();
@@ -276,12 +278,8 @@ const handleFeatureClick = (feature: string) => {
 .friend-item {
    display: flex;
    align-items: center;
-   padding: 24rpx;
-   background-color: #fff;
-   border-radius: 12rpx;
-   margin-bottom: 15rpx;
+   padding: 12px 5rpx;
    transition: all 0.2s;
-   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 
    &:active {
       transform: scale(0.98);
@@ -291,12 +289,12 @@ const handleFeatureClick = (feature: string) => {
 
 .avatar-container {
    position: relative;
-   margin-right: 20rpx;
+   margin-right: 10rpx;
 }
 
 .avatar {
-   width: 110rpx;
-   height: 110rpx;
+   width: 95rpx;
+   height: 95rpx;
    border-radius: 50%;
    background-color: #f0f0f0;
    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
@@ -306,8 +304,8 @@ const handleFeatureClick = (feature: string) => {
    position: absolute;
    bottom: 6rpx;
    right: 6rpx;
-   width: 32rpx;
-   height: 32rpx;
+   width: 20rpx;
+   height: 20rpx;
    border-radius: 50%;
    border: 4rpx solid #fff;
    background-color: #e0e0e0;
@@ -334,6 +332,7 @@ const handleFeatureClick = (feature: string) => {
 .friend-info {
    flex: 1;
    min-width: 0;
+   margin-left: 15rpx;
 }
 
 .friend-info-header {
@@ -349,14 +348,14 @@ const handleFeatureClick = (feature: string) => {
 }
 
 .friend-name {
-   font-size: 34rpx;
+   font-size: 26rpx;
    font-weight: 600;
    color: #333;
    margin-right: 12rpx;
 }
 
 .online-status {
-   font-size: 24rpx;
+   font-size: 20rpx;
    color: #52c41a;
    background-color: rgba(82, 196, 26, 0.1);
    padding: 4rpx 12rpx;
@@ -364,7 +363,7 @@ const handleFeatureClick = (feature: string) => {
 }
 
 .message-time {
-   font-size: 24rpx;
+   font-size: 22rpx;
    color: #999;
 }
 
@@ -375,10 +374,11 @@ const handleFeatureClick = (feature: string) => {
 }
 
 .latest-message {
-   font-size: 28rpx;
+   font-size: 22rpx;
    color: #666;
    flex: 1;
    min-width: 0;
+   max-width: 80%;
    overflow: hidden;
    text-overflow: ellipsis;
    white-space: nowrap;

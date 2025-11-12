@@ -13,10 +13,10 @@
          </block>
       </wd-tabs>
       <view class="but" @click="toSubmit">
-         <wd-icon name="chat"></wd-icon>
+         <tn-icon name="search" size="36" bold />
       </view>
       <view class="post-btn" @click="router.push({ name: 'sumbitfrom' })">
-         <wd-icon name="add"></wd-icon>
+         <tn-icon name="totop" size="36" color="#FFFFFF" bold />
       </view>
    </view>
 </template>
@@ -51,7 +51,7 @@ const toSubmit = () => {
       position: fixed;
       top: var(--status-bar-height);
       z-index: 1;
-      background: $quyou-nav-bg-color;
+      background: var(--quyou-nav-bg-color);
       height: $quyou-nav-height;
    }
    .zp-page-top {
@@ -60,13 +60,14 @@ const toSubmit = () => {
 }
 .page {
    position: relative;
+   background: white;
    padding-top: var(--status-bar-height); /* 状态栏 */
    padding-bottom: env(safe-area-inset-bottom); /* 底部安全区 */
 }
 .but {
    position: fixed;
+   top: 15rpx;
 
-   top: var(--status-bar-height);
    z-index: 99;
    right: 15rpx;
 }
@@ -74,8 +75,9 @@ const toSubmit = () => {
 /* 发送动态悬浮按钮 */
 .post-btn {
    position: fixed;
-   bottom: 120rpx;
+   bottom: 170rpx;
    right: 30rpx;
+   transform: rotate(45deg);
    z-index: 99;
    width: 80rpx;
    height: 80rpx;
@@ -86,5 +88,8 @@ const toSubmit = () => {
    align-items: center;
    justify-content: center;
    box-shadow: 0 4rpx 16rpx rgba(11, 218, 238, 0.3);
+}
+.content {
+   background: linear-gradient(160deg, #f2e9d2, #fff);
 }
 </style>

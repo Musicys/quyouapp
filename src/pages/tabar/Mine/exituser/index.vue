@@ -100,20 +100,6 @@
                </view>
             </view>
 
-            <!-- 邮箱 -->
-            <view class="info-item" @click="handleEditInfo('email')">
-               <text class="info-label">邮箱</text>
-               <view class="info-value">
-                  <text class="info-text">{{
-                     userInfo.email || '未设置'
-                  }}</text>
-                  <wd-icon
-                     name="arrow-right"
-                     size="28rpx"
-                     color="#ccc"></wd-icon>
-               </view>
-            </view>
-
             <!-- 个人简介 -->
             <view class="info-item" @click="handleEditInfo('introductory')">
                <text class="info-label">个人简介</text>
@@ -355,12 +341,19 @@ const handleAvatarUpload = () => {
 
 // 添加相册图片
 const handleAddImage = () => {
+   if (albumImages.value.length >= 8) {
+      uni.showToast({
+         title: '最多只能添加8张照片',
+         icon: 'none'
+      });
+      return;
+   }
+
    uni.chooseImage({
       count: 9 - albumImages.value.length,
       success: res => {
          albumImages.value = [...albumImages.value, ...res.tempFilePaths];
          // 更新imagsarr
-         form.imagsarr = JSON.stringify(albumImages.value);
       }
    });
 };

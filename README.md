@@ -30,6 +30,7 @@ pnpm run dev
 - luch-request [luch-request](https://www.npmjs.com/package/luch-request)
 - pina[pina](https://www.npmjs.com/package/pinia)
 - unplugin-auto-import [unplugin-auto-import](https://www.npmjs.com/package/unplugin-auto-import)
+- uni-ui [uni-ui](https://vue3.tuniaokj.com/doc/component/tabbar.html)
 
 ## 项目结构
 
@@ -62,6 +63,7 @@ pnpm run dev
 - [ ] 修复bug
 - [ ] Icon替换
 - [ ] 优化页面
+
 ## 待办事项
 
 - [ ] 修复bug

@@ -89,3 +89,10 @@ export const UserEdit = (data: {
 }) => {
    return HttpPost('/api/user/updateInfo', data);
 };
+
+/**
+ * @description 获取用户最新信息
+ */
+export const UserGetInfo = () => {
+   return HttpGet('/api/user/getuserinfo');
+};

@@ -223,7 +223,7 @@
       // },
       {
          "path": "pages/tabar/dynamic/datails/index",
-         "name": "dynamicDetails",
+         "name": "datails",
          "style": {
             "mp-alipay": {
                "allowsBounceVertical": "NO"

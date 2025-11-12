@@ -2,9 +2,9 @@
    <!-- 此时使用了页面的滚动，z-paging不需要有确定的高度，use-page-scroll需要设置为true -->
    <z-paging
       ref="paging"
-      :refresher-enabled="false"
       v-model="dataList"
-      :use-safe-area-placeholder="true"
+      :refresher-enabled="false"
+      use-page-scroll
       @query="queryList">
       <template #top>
          <Navtop></Navtop>
@@ -40,8 +40,8 @@ const queryList = (page, pageSize) => {
    getDynamicList({
       page,
       pageSize,
-      lat: store.userInfo.lat,
-      lng: store.userInfo.lng,
+      lat: store.userInfo.lat || 0,
+      lng: store.userInfo.lng || 0,
       province: ''
    }).then(res => {
       // 模拟请求成功

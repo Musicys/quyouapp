@@ -3,7 +3,7 @@
       <!-- 顶部导航栏 -->
       <view class="chat-header">
          <view class="header-left" @click="goBack">
-            <text class="back-icon">←</text>
+            <tn-icon name="left" bold size="36"></tn-icon>
          </view>
 
          <view class="header-center">
@@ -13,11 +13,19 @@
                }})</text
             >
             <text class="group-tag" v-if="groupChat && groupChat.tagName">
-               {{
-                  groupChat.tagName
-                     ? JSON.parse(groupChat.tagName)[0] || 'Soulmates'
-                     : ''
-               }}
+               <tn-tag
+                  bg-color="#F5F5F5"
+                  text-color="#606060"
+                  shape="round"
+                  font-size="22rpx"
+                  type="primary"
+                  bold>
+                  {{
+                     groupChat.tagName
+                        ? JSON.parse(groupChat.tagName)[0] || 'Soulmates'
+                        : ''
+                  }}</tn-tag
+               >
             </text>
          </view>
 
@@ -56,32 +64,47 @@
                <!-- 头像 -->
 
                <template v-if="message.type != 1">
-                  <view class="avatar">
-                     <image
-                        :src="message.avatarUrl?.replace(/`/g, '') || ''"
-                        mode="aspectFill"
-                        class="avatar-img"></image>
-                  </view>
+                  <view class="cart">
+                     <view class="message-time">{{
+                        formatMessageTime(message.createtime)
+                     }}</view>
 
-                  <!-- 消息内容 -->
-                  <view class="message-content">
-                     <!-- 用户名和群主标识 -->
-                     <view class="sender-info">
-                        <text class="username">{{ message.username }}</text>
-                        <text class="admin-badge" v-if="isAdmin(message.userid)"
-                           >群主</text
-                        >
+                     <view
+                        class="cart-content"
+                        :class="{
+                           'my-cart': isCurrentUser(message.userid)
+                        }">
+                        <view class="avatar">
+                           <image
+                              :src="message.avatarUrl?.replace(/`/g, '') || ''"
+                              mode="aspectFill"
+                              class="avatar-img"></image>
+                        </view>
+
+                        <!-- 消息内容 -->
+                        <view class="message-content">
+                           <!-- 用户名和群主标识 -->
+                           <view class="sender-info">
+                              <text class="username">{{
+                                 message.username
+                              }}</text>
+                              <text
+                                 class="admin-badge"
+                                 v-if="isAdmin(message.userid)"
+                                 >群主</text
+                              >
+                           </view>
+
+                           <!-- 消息气泡 -->
+                           <view class="message-bubble">
+                              <text class="message-text">{{
+                                 message.context
+                              }}</text>
+                           </view>
+
+                           <!-- 时间戳 -->
+                        </view>
                      </view>
-
-                     <!-- 消息气泡 -->
-                     <view class="message-bubble">
-                        <text class="message-text">{{ message.context }}</text>
-                     </view>
-
-                     <!-- 时间戳 -->
-                     <text class="message-time">{{
-                        formatTime(message.createtime)
-                     }}</text>
                   </view>
                </template>
                <template v-else>
@@ -102,24 +125,6 @@
       </scroll-view>
       <!-- 底部操作区域 -->
       <view class="chat-footer">
-         <!-- 功能按钮区域 -->
-         <view class="action-buttons">
-            <view class="action-btn" @click="createParty">
-               <text class="action-icon">🎉</text>
-               <text class="action-text">创建派对</text>
-            </view>
-
-            <view class="action-btn" @click="shareImage">
-               <text class="action-icon">📷</text>
-               <text class="action-text">分享图片</text>
-            </view>
-
-            <view class="action-btn" @click="shareMoment">
-               <text class="action-icon">💫</text>
-               <text class="action-text">分享此刻</text>
-            </view>
-         </view>
-
          <!-- 输入区域 -->
          <view class="input-area">
             <input
@@ -151,6 +156,8 @@ import { useRoute, useRouter } from 'uni-mini-router';
 import { onMounted, ref, nextTick } from 'vue';
 import { getChatMsgList } from '@/api/chat';
 import { onHide } from '@dcloudio/uni-app';
+import { formatMessageTime } from '@/util';
+
 const route = useRoute();
 const router = useRouter();
 const { userInfo } = useStore();
@@ -230,17 +237,6 @@ const formatDate = (timeStr: string) => {
       } else {
          return `${date.getMonth() + 1}月${date.getDate()}日`;
       }
-   } catch (error) {
-      return timeStr;
-   }
-};
-
-// 格式化时间
-const formatTime = (timeStr: string) => {
-   if (!timeStr) return '';
-   try {
-      const date = new Date(timeStr);
-      return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
    } catch (error) {
       return timeStr;
    }
@@ -424,7 +420,7 @@ onUnload(() => {
 .group-chat-container {
    width: 100%;
    height: 100vh;
-   background-color: #f5f7fa;
+   background: var(--quyou-bg-centext-color);
    display: flex;
    flex-direction: column;
    position: relative;
@@ -436,8 +432,7 @@ onUnload(() => {
    align-items: center;
    justify-content: space-between;
    padding: 20rpx;
-   background-color: #fff;
-   border-bottom: 1rpx solid #f0f0f0;
+   border-bottom: 1rpx solid rgba(0, 0, 0, 0.1);
    z-index: 10;
    height: 120rpx;
 }
@@ -476,7 +471,7 @@ onUnload(() => {
 }
 
 .group-name {
-   font-size: 32rpx;
+   font-size: 24rpx;
    font-weight: 600;
    color: #333;
    display: block;
@@ -641,6 +636,7 @@ onUnload(() => {
 .message-time {
    font-size: 24rpx;
    color: #999;
+   text-align: center;
    margin-top: 8rpx;
    display: block;
 }
@@ -654,30 +650,6 @@ onUnload(() => {
    background-color: #fff;
    border-top: 1rpx solid #f0f0f0;
    padding: 20rpx;
-}
-
-.action-buttons {
-   display: flex;
-   justify-content: space-around;
-   margin-bottom: 20rpx;
-   padding-bottom: 20rpx;
-   border-bottom: 1rpx solid #f0f0f0;
-}
-
-.action-btn {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-}
-
-.action-icon {
-   font-size: 40rpx;
-   margin-bottom: 8rpx;
-}
-
-.action-text {
-   font-size: 24rpx;
-   color: #666;
 }
 
 .input-area {
@@ -735,5 +707,16 @@ onUnload(() => {
    flex: 1;
    padding: 10px;
    overflow-y: auto; /* 添加滚动条 */
+}
+.cart {
+   display: flex;
+   width: 100%;
+   flex-direction: column;
+}
+.cart-content {
+   display: flex;
+}
+.my-cart {
+   flex-direction: row-reverse;
 }
 </style>

@@ -161,7 +161,7 @@
       </view>
 
       <!-- 右上角跳过按钮 -->
-      <view v-if="step < 3" class="skip-btn" @click="skipStep">跳过</view>
+      <!-- <view v-if="step < 3" class="skip-btn" @click="skipStep">跳过</view> -->
       <!-- 返回按钮 (从第二步开始显示) -->
       <view v-if="step > 1" class="back-button-container" @click="goBack">
          上一步
@@ -407,9 +407,9 @@ async function complete() {
       uni.hideLoading();
       store.setUserInfo(res.data);
       store.setLocation();
-      router.pushTab({
-         path: '/pages/tabar/home/index'
-      });
+      router.pushTab({ name: 'tabar' });
+   } else {
+      uni.hideLoading();
    }
 }
 </script>

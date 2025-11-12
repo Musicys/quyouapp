@@ -17,7 +17,7 @@ export const useStore = defineStore(
          lat: 0,
          lng: 0
       }); //经纬度
-
+      //设置用户位置
       const setLocation = () => {
          uni.getLocation({
             type: 'wgs84',
@@ -40,7 +40,7 @@ export const useStore = defineStore(
             }
          });
       };
-
+      //设置用户信息
       const setUserInfo = (val: User) => {
          userInfo.value = val;
          location.value.lat = userInfo.value.lat;
@@ -51,12 +51,18 @@ export const useStore = defineStore(
             });
          }
       };
-
+      //保持用户密码
       const setTokens = (val: User) => {
          let def = true;
          Tokens.value = Tokens.value.map(item => {
             if (item.id === val.id) {
-               item.is_default = 1;
+               console.log('YONGH,', 'GENX1');
+
+               item = {
+                  ...item,
+                  ...val,
+                  is_default: 1
+               };
                def = false;
             } else {
                item.is_default = 0;
@@ -69,6 +75,10 @@ export const useStore = defineStore(
          }
       };
 
+      const ColseToken = () => {
+         Tokens.value = [];
+      };
+      //自动登录
       const autoLogin = (
          fun: () => Void = () => {},
          err: () => Void = () => {}
@@ -77,14 +87,47 @@ export const useStore = defineStore(
          if (defaultToken) {
             UserLogin(defaultToken.tokens).then(res => {
                // setUserInfo(res.data);
+               console.log(res);
+
                if (res.code == 0) {
                   fun();
+               } else {
+                  err();
                }
             });
          } else {
             err();
          }
       };
+
+      //返回修改用户信息字段
+      const getEiditUser = (data: {
+         age?: number;
+         avatarUrl?: string;
+         gender?: number;
+         imagsarr?: string;
+         introductory?: string;
+         phone?: string;
+         tags?: string;
+         username?: string;
+      }) => {
+         const obj = {
+            age: userInfo.value.age,
+            avatarUrl: userInfo.value.avatarUrl,
+            gender: userInfo.value.gender,
+            id: userInfo.value.id,
+            imagsarr: userInfo.value.imagsarr,
+            introductory: userInfo.value.introductory,
+            phone: userInfo.value.phone,
+            tags: userInfo.value.tags,
+            username: userInfo.value.username
+         };
+         Object.keys(data).forEach(key => {
+            obj[key] = data[key];
+         });
+         return obj;
+      };
+
       return {
          userInfo,
          setUserInfo,
@@ -92,7 +135,9 @@ export const useStore = defineStore(
          setTokens,
          autoLogin,
          location,
-         setLocation
+         setLocation,
+         ColseToken,
+         getEiditUser
       };
    },
    {

@@ -18,7 +18,9 @@
          <HomeUserCart :data="item"></HomeUserCart>
       </view>
 
-      <template #bottom> </template>
+      <template #bottom>
+         <NavBottom></NavBottom>
+      </template>
    </z-paging>
 </template>
 
@@ -29,6 +31,7 @@ import HomeUserCart from '@/components/home-user-cart/index.vue';
 import { throttle } from '@/util/index';
 import Navtop from '@/components/nav-top/index.vue';
 import { reactive, watch } from 'vue';
+import NavBottom from '@/components/nav-buttom/index.vue';
 const pagingAlluser = ref(null);
 
 let dataList = ref();

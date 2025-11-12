@@ -13,32 +13,50 @@
          <view class="nav-center"> </view>
          <view class="nav-right"> </view>
       </view>
+
+      <view class="bgimg">
+         <image
+            src="https://img.shetu66.com/2023/07/14/1689302077000124.png"></image>
+      </view>
       <!-- 顶部用户信息展示区 -->
       <view class="user-info-section">
          <view class="header-bg"></view>
+         <view class="avatar-container">
+            <image
+               :src="
+                  lookUser.avatarUrl
+                     ? lookUser.avatarUrl.trim()
+                     : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
+               "
+               mode="aspectFill"
+               class="avatar"></image>
+            <view
+               v-if="lookUser.login === 1"
+               class="status-dot"
+               :class="{ online: lookUser.login === 1 }"></view>
+         </view>
          <view class="user-profile">
             <!-- 用户头像 -->
-            <view class="avatar-container">
-               <image
-                  :src="
-                     lookUser.avatarUrl
-                        ? lookUser.avatarUrl.trim()
-                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
-                  "
-                  mode="aspectFill"
-                  class="avatar"></image>
-               <view
-                  class="status-dot"
-                  :class="{ online: lookUser.login === 1 }"></view>
-            </view>
 
             <!-- 用户基本信息 -->
             <view class="user-basic-info">
                <view class="username-section">
-                  <text class="username">{{
-                     lookUser.username || lookUser.userAccount
-                  }}</text>
-                  <text class="user-id">#{{ lookUser.id || '000000' }}</text>
+                  <view class="box">
+                     <tn-icon
+                        :name="
+                           lookUser.gender === 1 ? 'sex-male' : 'sex-female'
+                        "
+                        size="38"
+                        :color="lookUser.gender === 1 ? '#4caf50' : '#f44336'"
+                        bold />
+
+                     <text class="username">{{
+                        lookUser.username || lookUser.userAccount
+                     }}</text>
+                  </view>
+                  <text class="user-id"
+                     >用户编号：{{ lookUser.id || '000000' }}</text
+                  >
                </view>
                <view class="user-meta">
                   <text class="age">{{ lookUser.age || '--' }}岁</text>
@@ -69,48 +87,15 @@
                {{ tag }}
             </view>
          </view>
+         <view class="feature-section">
+            <tn-photo-album
+               :data="JSON.parse(lookUser.imagsarr || '[]')"
+               :column="5"
+               max="9" />
+         </view>
       </view>
 
       <!-- 中间功能模块区域 -->
-      <view class="feature-section">
-         <view class="feature-grid">
-            <!-- 开通星球 -->
-            <view class="feature-card">
-               <view class="feature-icon planet-icon"></view>
-               <text class="feature-title">开通会员</text>
-               <text class="feature-subtitle">{{
-                  lookUser.planetCode || '未开通'
-               }}</text>
-            </view>
-
-            <!-- 财富等级 -->
-            <view class="feature-card">
-               <view class="feature-icon wealth-icon"></view>
-               <text class="feature-title">财富等级</text>
-               <text class="feature-subtitle"
-                  >Lv.{{ Math.floor(Math.random() * 10) + 1 }}</text
-               >
-            </view>
-
-            <!-- 魅力值 -->
-            <view class="feature-card">
-               <view class="feature-icon charm-icon"></view>
-               <text class="feature-title">魅力值</text>
-               <text class="feature-subtitle">{{
-                  Math.floor(Math.random() * 1000)
-               }}</text>
-            </view>
-
-            <!-- 获赞数 -->
-            <view class="feature-card">
-               <view class="feature-icon likes-icon"></view>
-               <text class="feature-title">获赞数</text>
-               <text class="feature-subtitle">{{
-                  Math.floor(Math.random() * 500)
-               }}</text>
-            </view>
-         </view>
-      </view>
 
       <!-- 下方动态内容区 -->
       <view class="dynamic-section">
@@ -156,7 +141,7 @@
       </view>
       <!-- 底部操作按钮 -->
       <view class="bottom-actions">
-         <view class="action-btn chat-btn" @click="navigateToChat">
+         <view class="action-btn chat-btn" @click="addFriend">
             <text class="btn-label">聊天</text>
          </view>
          <view class="action-btn follow-btn" @click="handleFollow">
@@ -167,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from 'uni-mini-router';
+import { useRoute, useRouter } from 'uni-mini-router';
 import { ref, onMounted, reactive } from 'vue';
 import { getUsersDetailViews } from '@/api/detail';
 import { User } from '@/api/user/model/type';
@@ -175,10 +160,14 @@ import { isFocus, FocusAdd, FocusDel } from '@/api/focus';
 import { getDynamicById } from '@/api/dynamic';
 import DynamicCart from '@/components/dynamic-cart/index.vue';
 import { throttle, debounce } from '@/util';
+import { sockeStore } from '@/store/socke';
+import { useStore } from '@/store/user';
+const store = useStore();
 const route = useRoute();
 const router = useRouter();
+const { send, IsFriend } = sockeStore();
 // 用户信息
-const lookUser = ref<any>();
+const lookUser = ref<User>();
 const Tab = reactive([
    {
       key: 2,
@@ -195,6 +184,30 @@ const isFollowing = ref(false);
 const selectTab = ref(0);
 const isDataLoading = ref(true);
 const dynamicList = ref<[]>([]);
+//相册
+const albumList = computed(() => {
+   return JSON.parse(lookUser.value?.imagsarr || '[]');
+});
+onMounted(() => {
+   if (route.query.userId == store.userInfo.id) {
+      router.replace({
+         name: 'usermessage'
+      });
+   }
+   getUsersDetailViews(Number(route.query.userId)).then(res => {
+      if (res.code === 0) {
+         lookUser.value = res.data;
+      }
+   });
+   isFocus(Number(route.query.userId)).then(res => {
+      if (res.code === 0) {
+         isFollowing.value = res.data;
+      }
+   });
+
+   setData();
+});
+
 const from = reactive({
    page: 1,
    pageSize: 10
@@ -229,32 +242,34 @@ const handleBack = () => {
    uni.navigateBack();
 };
 // 获取用户详情
-onMounted(() => {
-   getUsersDetailViews(Number(route.query.userId)).then(res => {
-      if (res.code === 0) {
-         lookUser.value = res.data;
-         // 模拟是否关注状态
-      }
-   });
-   isFocus(Number(route.query.userId)).then(res => {
-      if (res.code === 0) {
-         isFollowing.value = res.data;
-      }
-   });
-
-   setData();
-});
-
 // 跳转到聊天页面
-const navigateToChat = () => {
-   if (lookUser.value) {
+//私聊
+const addFriend = () => {
+   const isFriend = IsFriend(lookUser.value.userId);
+   if (isFriend) {
       router.push({
-         path: '/pages/chat/index',
-         query: { userId: lookUser.value.id }
+         name: 'chat',
+         params: { sendid: lookUser.value.userId }
       });
+   } else {
+      send(
+         JSON.stringify({
+            id: store.userInfo.id,
+            type: 4,
+            sendid: lookUser.value?.id,
+            sendteam: null,
+            context: '你好啊，我们开始聊天把-.-',
+            sendTime: new Date()
+         })
+      );
+      setTimeout(() => {
+         router.push({
+            name: 'chat',
+            params: { sendid: lookUser.value?.id }
+         });
+      }, 500);
    }
 };
-
 // 关注/取消关注
 const handleFollow = () => {
    //判断是否关注，调用关注接口和取消关注接口
@@ -293,7 +308,7 @@ const handleFollow = () => {
 
 <style lang="scss" scoped>
 // 主色调定义 - 紫色系
-$primary-purple: #9c27b0;
+$primary-purple: #3e2642;
 $light-purple: #e1bee7;
 $dark-purple: #6a1b9a;
 $accent-purple: #ea80fc;
@@ -307,13 +322,14 @@ $accent-purple: #ea80fc;
 // 顶部用户信息展示区
 .user-info-section {
    position: relative;
-   background: linear-gradient(135deg, $primary-purple, $dark-purple);
-   border-radius: 0 0 40rpx 40rpx;
-   padding-top: 40rpx;
-   padding-bottom: 30rpx;
+   background: black;
+   border-radius: 30rpx 30rpx 0 0;
+
    padding-top: 100rpx;
+   padding-bottom: 30rpx;
    color: white;
    box-shadow: 0 4rpx 20rpx rgba(156, 39, 176, 0.3);
+   margin-top: 15vh;
 }
 
 .header-bg {
@@ -331,13 +347,20 @@ $accent-purple: #ea80fc;
 
 .user-profile {
    display: flex;
-   align-items: center;
+
    padding: 0 30rpx;
+   flex-direction: column;
+   justify-content: start;
    margin-bottom: 20rpx;
 }
 
 .avatar-container {
-   position: relative;
+   // position: relative;
+   // --h: 50rpx;
+   position: absolute;
+   top: -50rpx;
+   left: 50rpx;
+
    margin-right: 25rpx;
 }
 
@@ -350,10 +373,10 @@ $accent-purple: #ea80fc;
 
 .status-dot {
    position: absolute;
-   bottom: 8rpx;
-   right: 8rpx;
-   width: 24rpx;
-   height: 24rpx;
+   bottom: 15rpx;
+   right: -15rpx;
+   width: 30rpx;
+   height: 30rpx;
    border-radius: 50%;
    background-color: rgba(255, 255, 255, 0.5);
    border: 3rpx solid white;
@@ -423,8 +446,7 @@ $accent-purple: #ea80fc;
 
 // 中间功能模块区域
 .feature-section {
-   padding: 30rpx;
-   margin-bottom: 20rpx;
+   padding: 30rpx 10rpx;
 }
 
 .feature-grid {
@@ -589,5 +611,16 @@ $accent-purple: #ea80fc;
    z-index: 999;
    transition: all 0.3s ease;
    right: 0;
+}
+.bgimg {
+   height: 30vh;
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   & > image {
+      width: 100%;
+      height: 100%;
+   }
 }
 </style>

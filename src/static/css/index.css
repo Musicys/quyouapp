@@ -13,7 +13,8 @@ uni-page-wrapper {
    --quyou-nav-bg-color: #ffe088;
 
    --quyou-nav-height: 95rpx; /*  */
-   --quyou-nav-ste-height: 66rpx; /*  */
+   --quyou-nav-ste-height: 86rpx; /*  */
+   --quyou-bg-centext-color: linear-gradient(160deg, #f2e9d2, #fff); /*  */
 }
 .wd-img {
    width: 100%;

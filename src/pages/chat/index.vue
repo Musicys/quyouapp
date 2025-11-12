@@ -2,17 +2,28 @@
    <view class="chat-page">
       <!-- 导航栏区域 -->
       <wd-navbar left-arrow @click-left="handleClickLeft">
-         <template #title>{{ friendInfo.username || '聊天' }}</template>
+         <template #title>
+            <view class="centext">
+               <text class="title">
+                  <tn-icon
+                     :name="friendInfo.gender === 1 ? 'sex-male' : 'sex-female'"
+                     :color="friendInfo.gender === 1 ? '#4caf50' : '#f44336'"
+                     bold />
+                  {{ friendInfo.username || '聊天' }}
+               </text>
+            </view>
+         </template>
          <template #right>
-            <wd-button type="success" size="small" @click="toggleFollow">{{
-               followText
-            }}</wd-button>
-            <wd-icon
-               name="decrease"
-               size="22px"
-               @click="showMoreOptions"></wd-icon>
+            <wd-button
+               class="follow-btn"
+               type="success"
+               size="small"
+               @click="toggleFollow"
+               >{{ followText }}</wd-button
+            >
          </template>
       </wd-navbar>
+
       <view class="chat-nav">
          <!-- 人物卡片区域 -->
          <view class="user-card">
@@ -21,28 +32,30 @@
                   <image :src="friendInfo.avatarUrl" mode="aspectFill"></image>
                </view>
                <view
+                  v-if="friendInfo.login === 1"
                   :class="[
                      'online-status',
                      { online: friendInfo.login === 1 }
                   ]"></view>
             </view>
             <view class="user-info">
-               <view class="name-age">
-                  <text class="name">{{ friendInfo.username }}</text>
-                  <text class="age">{{ friendInfo.age }}岁</text>
-                  <text class="gender">{{
-                     friendInfo.gender === 1 ? '♂' : '♀'
-                  }}</text>
+               <view class="box">
+                  <view class="tag"> Ta的标签： </view>
+                  <view class="tags">
+                     <text
+                        v-for="(tag, index) in JSON.parse(
+                           friendInfo.tags || '[]'
+                        )"
+                        :key="index"
+                        class="tag-item"
+                        >{{ tag }}</text
+                     >
+                  </view>
                </view>
-               <view class="tags">
-                  <text
-                     v-for="(tag, index) in friendInfo.tags"
-                     :key="index"
-                     class="tag-item"
-                     >{{ tag }}</text
-                  >
+               <view class="box">
+                  <view class="tag"> Ta的简介： </view>
+                  <view class="intro">{{ friendInfo.introductory }}</view>
                </view>
-               <view class="intro">{{ friendInfo.introductory }}</view>
             </view>
          </view>
       </view>
@@ -63,53 +76,68 @@
                :key="index"
                :class="['msg-item', msg.isMine ? 'mine' : 'other']">
                <!-- 自己的消息 -->
+               <view class="msg-time">{{ msg.time }}</view>
                <template v-if="msg.isMine">
-                  <view class="avatar">
-                     <image
-                        :src="userInfo.avatarUrl || '默认头像URL'"
-                        mode="aspectFill"></image>
-                  </view>
-                  <view class="msg-content">
-                     <view v-if="msg.type === 'text'" class="text-msg">
-                        <text>
-                           {{ msg.content }}
-                        </text>
+                  <view class="!flex flex-row-reverse mb-0.5">
+                     <view class="avatar">
+                        <image
+                           :src="userInfo.avatarUrl || '默认头像URL'"
+                           mode="aspectFill"></image>
                      </view>
-                     <view v-else-if="msg.type === 'image'" class="image-msg">
-                        <image :src="msg.content" mode="aspectFill"></image>
+                     <view class="msg-content">
+                        <view v-if="msg.type === 'text'" class="text-msg">
+                           <text>
+                              {{ msg.content }}
+                           </text>
+                        </view>
+                        <view
+                           v-else-if="msg.type === 'image'"
+                           class="image-msg">
+                           <image :src="msg.content" mode="aspectFill"></image>
+                        </view>
+                        <view
+                           v-else-if="msg.type === 'voice'"
+                           class="voice-msg">
+                           <wot-icon
+                              name="voice"
+                              color="#666"
+                              size="20"></wot-icon>
+                           <text class="voice-duration"
+                              >{{ msg.duration }}''</text
+                           >
+                        </view>
                      </view>
-                     <view v-else-if="msg.type === 'voice'" class="voice-msg">
-                        <wot-icon
-                           name="voice"
-                           color="#666"
-                           size="20"></wot-icon>
-                        <text class="voice-duration">{{ msg.duration }}''</text>
-                     </view>
-                     <text class="msg-time">{{ msg.time }}</text>
                   </view>
                </template>
                <!-- 对方的消息 -->
                <template v-else>
-                  <view class="avatar">
-                     <image
-                        :src="friendInfo.avatarUrl || '默认头像URL'"
-                        mode="aspectFill"></image>
-                  </view>
-                  <view class="msg-content">
-                     <view v-if="msg.type === 'text'" class="text-msg">
-                        {{ msg.content }}
+                  <view class="!flex mb-0.5">
+                     <view class="avatar">
+                        <image
+                           :src="friendInfo.avatarUrl || '默认头像URL'"
+                           mode="aspectFill"></image>
                      </view>
-                     <view v-else-if="msg.type === 'image'" class="image-msg">
-                        <image :src="msg.content" mode="aspectFill"></image>
+                     <view class="msg-content">
+                        <view v-if="msg.type === 'text'" class="text-msg">
+                           {{ msg.content }}
+                        </view>
+                        <view
+                           v-else-if="msg.type === 'image'"
+                           class="image-msg">
+                           <image :src="msg.content" mode="aspectFill"></image>
+                        </view>
+                        <view
+                           v-else-if="msg.type === 'voice'"
+                           class="voice-msg">
+                           <wot-icon
+                              name="voice"
+                              color="#666"
+                              size="20"></wot-icon>
+                           <text class="voice-duration"
+                              >{{ msg.duration }}''</text
+                           >
+                        </view>
                      </view>
-                     <view v-else-if="msg.type === 'voice'" class="voice-msg">
-                        <wot-icon
-                           name="voice"
-                           color="#666"
-                           size="20"></wot-icon>
-                        <text class="voice-duration">{{ msg.duration }}''</text>
-                     </view>
-                     <text class="msg-time">{{ msg.time }}</text>
                   </view>
                </template>
             </view>
@@ -117,64 +145,59 @@
       </scroll-view>
 
       <!-- 消息输入区域 -->
-      <view class="input-area">
-         <view class="input-left">
-            <input
-               v-if="inputType === 'text'"
-               v-model="inputValue"
-               placeholder="请输入消息..."
-               auto-height="false"
-               type="text"
-               confirm-type="send"
-               @confirm="sendMsg"
-               class="text-input" />
-            <view
-               v-else
-               class="voice-holder"
-               @longpress="startRecord"
-               @touchend="endRecord">
-               按住说话
+      <view class="btn">
+         <view class="input-area">
+            <view class="input-left">
+               <input
+                  v-if="inputType === 'text'"
+                  v-model="inputValue"
+                  placeholder="请输入消息..."
+                  auto-height="false"
+                  type="text"
+                  confirm-type="send"
+                  @confirm="sendMsg"
+                  class="text-input" />
+               <view
+                  v-else
+                  class="voice-holder"
+                  @longpress="startRecord"
+                  @touchend="endRecord">
+                  按住说话
+               </view>
+               <wot-icon
+                  name="smile"
+                  color="#999"
+                  size="28"
+                  @click="toggleEmojiPanel"></wot-icon>
             </view>
-            <wot-icon
-               name="smile"
-               color="#999"
-               size="28"
-               @click="toggleEmojiPanel"></wot-icon>
+            <view class="input-right">
+               <wd-button type="success" class="send-btn" @click="sendMsg"
+                  >发送</wd-button
+               >
+            </view>
          </view>
-         <view class="input-right">
-            <wd-button type="success" class="send-btn" @click="sendMsg"
-               >发送</wd-button
-            >
-         </view>
-      </view>
-
-      <!-- 底部功能区域 -->
-      <view class="bottom-func">
-         <view class="func-item" @click="openImagePicker">
-            <wot-icon name="image" color="#666" size="24"></wot-icon>
-            <text>图片</text>
-         </view>
-         <view class="func-item" @click="makeCall">
-            <wot-icon name="phone" color="#666" size="24"></wot-icon>
-            <text>电话</text>
-         </view>
-         <view class="func-item" @click="showHotTags">
-            <wot-icon name="tag" color="#666" size="24"></wot-icon>
-            <text>热门标签</text>
-         </view>
-         <view class="func-item" @click="showMoreFunc">
-            <wot-icon name="more" color="#666" size="24"></wot-icon>
-            <text>更多</text>
+         <!-- 底部功能区域 -->
+         <view class="bottom-func">
+            <view class="func-item" @click="openImagePicker">
+               <tn-icon name="sound" />
+            </view>
+            <view class="func-item" @click="makeCall">
+               <tn-icon name="../../static/imgs/smile.png" />
+            </view>
+            <view class="func-item" @click="showHotTags">
+               <tn-icon name="image" />
+            </view>
+            <view class="func-item" @click="showMoreFunc"
+               ><tn-icon name="add-circle" />
+            </view>
          </view>
       </view>
-
       <!-- 表情面板（默认隐藏） -->
-      <view v-show="showEmojiPanel" class="emoji-panel">
-         <!-- 表情内容，这里简化示例 -->
+      <!-- <view v-show="showEmojiPanel" class="emoji-panel">
          <view class="emoji-item" @click="selectEmoji('😄')">😄</view>
          <view class="emoji-item" @click="selectEmoji('😊')">😊</view>
          <view class="emoji-item" @click="selectEmoji('❤️')">❤️</view>
-      </view>
+      </view> -->
    </view>
 </template>
 
@@ -185,6 +208,7 @@ import { sockeStore } from '@/store/socke';
 import { useStore } from '@/store/user';
 import { UpdateSendsye } from '@/api/wbscoke';
 import { getSendMsgList } from '@/api/chat';
+import { formatMessageTime } from '@/util';
 
 const { userInfo } = useStore();
 const soke = sockeStore();
@@ -268,7 +292,7 @@ const loadMoreMessages = () => {
          const arrsend = arr.map(msg => ({
             content: msg.context,
             type: 'text',
-            time: formatTime(msg.createtime),
+            time: formatMessageTime(msg.createtime),
             isMine: msg.userid == userInfo.id // 假设当前用户ID是26758
          }));
          // 将新消息添加到现有消息前面，实现历史消息加载
@@ -283,6 +307,8 @@ const loadMoreMessages = () => {
       }
    });
 };
+
+//判断时间范围
 
 // 滚动到底部函数
 const scrollToBottom = () => {
@@ -308,7 +334,7 @@ const updateMessages = (fun = () => {}) => {
       messages.value = friendInfo.value.sendList.map(msg => ({
          content: msg.context,
          type: 'text',
-         time: formatTime(msg.createtime),
+         time: formatMessageTime(msg.createtime),
          isMine: msg.userid == userInfo.id // 假设当前用户ID是26758
       }));
       fun();
@@ -325,24 +351,6 @@ const updateMessages = (fun = () => {}) => {
       ];
    }
    scrollToBottom();
-};
-
-// 格式化时间
-const formatTime = timeStr => {
-   try {
-      const date = new Date(timeStr);
-      return date
-         .toLocaleString('zh-CN', {
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-         })
-         .replace(/\//g, '-');
-   } catch {
-      return timeStr;
-   }
 };
 
 // 返回
@@ -484,21 +492,21 @@ $online-green: #52c41a;
    width: 100vw;
    height: 100vh;
    background-color: $light-gray;
+   background: var(--quyou-bg-centext-color);
 }
 
 .chat-nav {
-   background-color: #fff;
    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .user-card {
-   padding: 15px;
-   background-color: #fff;
+   padding: 10rpx 15rpx;
+
    .avatar-container {
+      --h: 90rpx;
       position: relative;
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 10px;
+      width: var(--h);
+      height: var(--h);
       .avatar {
          width: 100%;
          height: 100%;
@@ -514,8 +522,8 @@ $online-green: #52c41a;
          position: absolute;
          bottom: 0;
          right: 0;
-         width: 16px;
-         height: 16px;
+         width: 25rpx;
+         height: 25rpx;
          border-radius: 50%;
          background-color: #ccc;
          border: 2px solid #fff;
@@ -527,31 +535,20 @@ $online-green: #52c41a;
    .user-info {
       text-align: center;
       margin-bottom: 10px;
-      .name-age {
+      .box {
          display: flex;
+         flex-wrap: wrap;
+         font-size: 25rpx;
+         justify-content: start;
          align-items: center;
-         justify-content: center;
-         margin-bottom: 5px;
-         .name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-right: 8px;
-         }
-         .age {
-            font-size: 14px;
-            color: #666;
-            margin-right: 5px;
-         }
-         .gender {
-            font-size: 16px;
-            color: $theme-color;
-         }
+      }
+      .tag {
+         font-size: 22rpx;
       }
       .intro {
          text-align: center;
          color: #666;
-         font-size: 14px;
+         font-size: 22rpx;
          line-height: 1.4;
          padding: 0 10px;
       }
@@ -563,26 +560,28 @@ $online-green: #52c41a;
       margin-bottom: 5px;
       .tag-item {
          padding: 3px 8px;
-         background-color: $light-gray;
+
          border-radius: 10px;
          margin: 3px;
-         font-size: 12px;
+         font-size: 22rpx;
          color: #666;
       }
    }
 }
 
+.msg-item {
+   display: flex;
+   flex-direction: column;
+}
 .chat-area {
    flex: 1;
    padding: 10px;
-   background-color: $light-gray;
    overflow-y: auto; /* 添加滚动条 */
    .msg-item {
       margin-bottom: 15px;
       display: flex;
 
       &.mine {
-         flex-direction: row-reverse;
          .msg-content {
             .text-msg {
                background-color: #a2e39c;
@@ -594,16 +593,13 @@ $online-green: #52c41a;
             .voice-msg {
                background-color: #a2e39c;
             }
-            .msg-time {
-               text-align: right;
-            }
          }
       }
       &.other {
-         flex-direction: row;
          .msg-content {
             .text-msg {
                background-color: #fff;
+               width: auto;
                color: #333;
             }
             .image-msg image {
@@ -628,6 +624,7 @@ $online-green: #52c41a;
       .msg-content {
          max-width: 70%;
          .text-msg {
+            display: inline-block;
             padding: 8px 12px;
             border-radius: 8px;
             margin-bottom: 3px;
@@ -652,19 +649,25 @@ $online-green: #52c41a;
          }
          .msg-time {
             font-size: 10px;
-            color: #999;
             display: block;
+            margin-bottom: 1em;
          }
       }
    }
+}
+.msg-time {
+   text-align: center;
+   font-size: 22rpx;
+   color: #999;
+   margin: 10rpx 0;
 }
 
 .input-area {
    display: flex;
    align-items: center;
    padding: 10px;
-   background-color: #fff;
    border-top: 1px solid $border-color;
+
    .input-left {
       flex: 1;
       display: flex;
@@ -676,6 +679,7 @@ $online-green: #52c41a;
          padding: 0 8px;
          border: 1px solid #ddd;
          border-radius: 18px;
+         font-size: 24rpx;
          margin: 0 8px;
       }
       .voice-holder {
@@ -705,12 +709,12 @@ $online-green: #52c41a;
    display: flex;
    justify-content: space-around;
    padding: 10px 0;
-   background-color: #fff;
    border-top: 1px solid $border-color;
    .func-item {
       display: flex;
       flex-direction: column;
       align-items: center;
+      font-size: 18px;
       text {
          font-size: 12px;
          color: #666;
@@ -724,7 +728,7 @@ $online-green: #52c41a;
    bottom: 120px;
    left: 0;
    right: 0;
-   background-color: #fff;
+
    padding: 10px;
    display: flex;
    flex-wrap: wrap;
@@ -750,5 +754,28 @@ $online-green: #52c41a;
    font-size: 26rpx;
    color: #666;
    font-weight: 500;
+}
+.centext {
+   font-size: 26rpx;
+   display: flex;
+   flex-direction: column;
+   .title {
+      font-size: 23rpx;
+   }
+   .status {
+      color: #666;
+      font-size: 24rpx;
+   }
+}
+.follow-btn {
+   color: black !important;
+}
+:deep() {
+   .wd-navbar {
+      background: none !important  ;
+   }
+}
+.btn {
+   background: #fff;
 }
 </style>

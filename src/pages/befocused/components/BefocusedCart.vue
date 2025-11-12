@@ -1,5 +1,5 @@
 <template>
-   <view class="befocused-cart-container" @click="handleViewProfile">
+   <view class="befocused-cart-container">
       <!-- 左侧：用户信息区域 -->
       <view class="user-info-section">
          <!-- 用户头像 -->
@@ -20,9 +20,14 @@
                   <text :class="['gender-icon', genderClass]">{{
                      genderIcon
                   }}</text>
+                  <!-- 年龄 -->
+                  <text class="age">{{ localData.age || '' }}岁</text>
                </view>
-               <!-- 年龄 -->
-               <text class="age">{{ localData.age || '' }}岁</text>
+
+               <!-- 创建时间 -->
+               <text class="age" style="font-size: 18rpx">{{
+                  formatViewTime || ''
+               }}</text>
             </view>
 
             <!-- 个人简介 -->
@@ -46,7 +51,7 @@
 
       <!-- 右侧：聊天按钮 -->
       <view class="action-section">
-         <button class="chat-button" @click.stop="handleChat">
+         <button class="chat-button" @click="addFriend">
             <text class="chat-button-text">聊天</text>
          </button>
       </view>
@@ -56,6 +61,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { FocusUserVo } from '@/api/focus/model/type';
+import { useRouter } from 'uni-mini-router';
+import { useStore } from '@/store/user';
+import { sockeStore } from '@/store/socke';
+const store = useStore();
+const router = useRouter();
+const socke = sockeStore();
 
 const props = defineProps({
    data: {
@@ -66,6 +77,43 @@ const props = defineProps({
 
 // 创建本地响应式数据副本，符合单向数据流
 const localData = ref<FocusUserVo>({ ...props.data });
+// 格式化观看时间
+const formatViewTime = computed(() => {
+   if (!localData.value.createTime) return '未知时间';
+
+   try {
+      const viewTime = new Date(localData.value.createTime);
+      const now = new Date();
+      const diffInSeconds = Math.floor(
+         (now.getTime() - viewTime.getTime()) / 1000
+      );
+
+      // 计算时间差
+      const secondsInMinute = 60;
+      const secondsInHour = secondsInMinute * 60;
+      const secondsInDay = secondsInHour * 24;
+      const secondsInMonth = secondsInDay * 30;
+
+      if (diffInSeconds < secondsInMinute) {
+         return '刚刚';
+      } else if (diffInSeconds < secondsInHour) {
+         const minutes = Math.floor(diffInSeconds / secondsInMinute);
+         return `${minutes}分钟前`;
+      } else if (diffInSeconds < secondsInDay) {
+         const hours = Math.floor(diffInSeconds / secondsInHour);
+         return `${hours}小时前`;
+      } else if (diffInSeconds < secondsInMonth) {
+         const days = Math.floor(diffInSeconds / secondsInDay);
+         return `${days}天前`;
+      } else {
+         // 超过一个月显示具体日期
+         return `${viewTime.getFullYear()}-${String(viewTime.getMonth() + 1).padStart(2, '0')}-${String(viewTime.getDate()).padStart(2, '0')}`;
+      }
+   } catch (error) {
+      console.error('时间格式化错误:', error);
+      return '未知时间';
+   }
+});
 
 // 监听props变化，更新本地数据
 watch(
@@ -112,19 +160,37 @@ const parsedTags = computed(() => {
 
 // 查看用户资料
 const handleViewProfile = () => {
-   if (localData.value.userId) {
-      uni.navigateTo({
-         url: `/pages/user/profile?id=${localData.value.userId}`
-      });
-   }
+   router.push({
+      name: 'preinfo',
+      params: { userId: localData.value.userId }
+   });
 };
 
 // 发起聊天
-const handleChat = () => {
-   if (localData.value.userId) {
-      uni.navigateTo({
-         url: `/pages/chat/index?userId=${localData.value.userId}`
+const addFriend = () => {
+   const isFriend = socke.IsFriend(localData.value.userId);
+   if (isFriend) {
+      router.push({
+         name: 'chat',
+         params: { sendid: localData.value.userId }
       });
+   } else {
+      socke.send(
+         JSON.stringify({
+            id: store.userInfo.id,
+            type: 4,
+            sendid: localData.value.userId,
+            sendteam: null,
+            context: '你好啊，我们开始聊天把-.-',
+            sendTime: new Date()
+         })
+      );
+      setTimeout(() => {
+         router.push({
+            name: 'chat',
+            params: { sendid: localData.value.userId }
+         });
+      }, 500);
    }
 };
 
@@ -185,14 +251,14 @@ const handleTagClick = (tag: string) => {
 }
 
 .username {
-   font-size: 32rpx;
+   font-size: 28rpx;
    font-weight: 500;
    color: #333333;
    margin-right: 8rpx;
 }
 
 .gender-icon {
-   font-size: 24rpx;
+   font-size: 20rpx;
    padding: 2rpx 8rpx;
    border-radius: 12rpx;
    font-weight: 500;
@@ -209,7 +275,7 @@ const handleTagClick = (tag: string) => {
 }
 
 .age {
-   font-size: 26rpx;
+   font-size: 22rpx;
    color: #666666;
 }
 
@@ -265,7 +331,7 @@ const handleTagClick = (tag: string) => {
    background-color: #ff6b81;
    color: #ffffff;
    border-radius: 34rpx;
-   font-size: 28rpx;
+   font-size: 24rpx;
    border: none;
    padding: 0;
    box-shadow: 0 4rpx 12rpx rgba(255, 107, 129, 0.3);
@@ -295,11 +361,11 @@ const handleTagClick = (tag: string) => {
    }
 
    .username {
-      font-size: 30rpx;
+      font-size: 26rpx;
    }
 
    .introductory {
-      font-size: 24rpx;
+      font-size: 20rpx;
       line-height: 36rpx;
    }
 
@@ -307,7 +373,7 @@ const handleTagClick = (tag: string) => {
       width: 110rpx;
       height: 62rpx;
       line-height: 62rpx;
-      font-size: 26rpx;
+      font-size: 22rpx;
    }
 }
 </style>

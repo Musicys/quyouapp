@@ -15,7 +15,7 @@ export const updateOssFile = (File: string) => {
 //#endif
 //#ifdef APP-PLUS
 export const updateOssFile = (File: string) => {
-   return HttpPost({
+   return uni.uploadFile({
       url: '/api/api/file',
       filePath: File,
       name: 'file',

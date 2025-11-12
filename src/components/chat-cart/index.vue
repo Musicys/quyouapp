@@ -144,7 +144,7 @@ const handleTagClick = (tag: string) => {
    display: flex;
    align-items: center;
    padding: 24rpx;
-   background-color: #ffffff;
+
    border-bottom: 1rpx solid #f0f0f0;
    transition: background-color 0.2s;
 

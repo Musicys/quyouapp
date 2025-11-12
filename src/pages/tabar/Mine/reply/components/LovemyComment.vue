@@ -8,7 +8,6 @@
             mode="aspectFill"
             class="user-avatar"
             @click.stop="handleViewUser" />
-
          <!-- 互动信息 -->
          <view class="interaction-info">
             <view class="top-row">
@@ -42,7 +41,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { DynamicCommentVo } from '@/api/love/model/type';
-
+import { useRouter } from 'uni-mini-router';
+const router = useRouter();
 const props = defineProps<{
    data: DynamicCommentVo;
 }>();
@@ -102,11 +102,12 @@ const handleViewUser = () => {
 
 // 查看动态详情
 const handleViewDynamic = () => {
-   if (localData.value.dynamicId) {
-      uni.navigateTo({
-         url: `/pages/dynamic/detail?id=${localData.value.dynamicId}`
-      });
-   }
+   router.push({
+      name: 'datails',
+      params: {
+         dynamicId: localData.value.dynamicId
+      }
+   });
 };
 
 // 查看图片

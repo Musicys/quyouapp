@@ -3,6 +3,12 @@
       <!-- 评论主体 -->
       <view class="comment-main">
          <image
+            @click.stop="
+               router.push({
+                  name: 'preinfo',
+                  params: { userId: comment.userId }
+               })
+            "
             class="comment-avatar"
             :src="comment.avatarUrl"
             mode="aspectFill"></image>
@@ -19,21 +25,20 @@
             <view
                class="comment-images"
                v-if="comment.imgarr && JSON.parse(comment.imgarr).length > 0">
-               <image
+               <wd-img
                   v-for="(img, index) in JSON.parse(comment.imgarr)"
                   :key="index"
+                  :width="100"
+                  :height="100"
                   :src="img.trim()"
                   mode="aspectFill"
-                  class="comment-image"></image>
+                  :enable-preview="true"
+                  class="comment-image"></wd-img>
             </view>
             <!-- 评论操作 -->
             <view class="comment-actions">
-               <view class="action-btn" @click="handleLike">
-                  <wd-icon name="heart" size="24rpx" />
-                  <text>点赞</text>
-               </view>
                <view class="action-btn" @click="handleReply">
-                  <wd-icon name="comment" size="24rpx" />
+                  <tn-icon name="reply-fill" size="36" />
                   <text>回复</text>
                </view>
             </view>
@@ -44,6 +49,12 @@
       <view class="reply-list" v-if="comment.chide && comment.chide.length > 0">
          <view class="reply-item" v-for="reply in message" :key="reply.id">
             <image
+               @click.stop="
+                  router.push({
+                     name: 'preinfo',
+                     params: { userId: reply.userId }
+                  })
+               "
                class="reply-avatar"
                :src="reply.avatarUrl"
                mode="aspectFill"></image>
@@ -57,15 +68,14 @@
                   <text class="reply-target">@{{ props.comment.username }}</text
                   >: {{ reply.context }}
                </text>
+
+               <wd-img
+                  v-if="reply.imgarr"
+                  :width="100"
+                  :height="100"
+                  :src="reply.imgarr ? JSON.parse(reply.imgarr)[0] : ''"
+                  :enable-preview="true" />
                <text class="reply-time">{{ reply.formattedTime }}</text>
-               <view class="reply-actions">
-                  <view class="action-btn" @click="handleReplyLike(reply.id)">
-                     <wd-icon name="heart" size="22rpx" />
-                  </view>
-                  <view class="action-btn" @click="handleReplyToReply(reply)">
-                     <wd-icon name="comment" size="22rpx" />
-                  </view>
-               </view>
             </div>
          </view>
 
@@ -84,7 +94,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, watch } from 'vue';
 import { getReplyList } from '@/api/dynamic';
-import { useRoute } from 'uni-mini-router';
+import { useRoute, useRouter } from 'uni-mini-router';
+const router = useRouter();
+
 const route = useRoute();
 interface Reply {
    id: number;
@@ -160,6 +172,8 @@ const displayReplies = () => {
 };
 
 onMounted(() => {
+   console.log('组件', props.comment);
+
    displayReplies();
 });
 
@@ -192,6 +206,7 @@ const getLocationText = (lat: number, lng: number) => {
 // 处理点赞
 const handleLike = () => {
    console.log('点赞评论:', props.comment.id);
+
    // 这里可以调用点赞API
 };
 
@@ -284,8 +299,8 @@ const handleLoadMore = async () => {
 }
 
 .comment-avatar {
-   width: 60rpx;
-   height: 60rpx;
+   width: 80rpx;
+   height: 80rpx;
    border-radius: 50%;
    flex-shrink: 0;
 }
@@ -384,8 +399,8 @@ const handleLoadMore = async () => {
 }
 
 .reply-avatar {
-   width: 40rpx;
-   height: 40rpx;
+   width: 60rpx;
+   height: 60rpx;
    border-radius: 50%;
    flex-shrink: 0;
 }

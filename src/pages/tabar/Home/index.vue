@@ -104,9 +104,7 @@ import Alluser from '@/components/home-list/Alluser.vue';
 import Dicuser from '@/components/home-list/Dicuser.vue';
 import ChatList from '@/components/home-list/ChatList.vue';
 import { UserUpdateLongitude } from '@/api/user';
-
 const show = ref(false);
-
 const fromAlluser = ref({
    gender: null, //性别
    age: '', //年龄范围
@@ -124,6 +122,7 @@ const genderOptions = ref([
 const ageOptions = ref([
    ['不限', '18-22岁', '23-26岁', '27-30岁', '31-35岁', '36岁以上']
 ]);
+
 const tabs = ref([
    { title: '全部', value: '0' },
    { title: '附近', value: '1' },
@@ -275,7 +274,7 @@ const refreshLocation = () => {
       position: fixed;
       top: var(--status-bar-height);
       z-index: 1;
-      background: $quyou-nav-bg-color;
+      background: var(--quyou-nav-bg-color);
       height: $quyou-nav-height;
    }
    .zp-page-top {
@@ -285,6 +284,7 @@ const refreshLocation = () => {
 
 .page {
    position: relative;
+
    padding-top: var(--status-bar-height); /* 状态栏 */
    padding-bottom: env(safe-area-inset-bottom); /* 底部安全区 */
 }
@@ -320,10 +320,10 @@ const refreshLocation = () => {
 
 .popup-container {
    position: fixed;
-   bottom: 0;
+   bottom: 130rpx;
    left: 0;
    width: 100%;
-   height: 90vh;
+   height: 70vh;
    background-color: #fff;
    border-radius: 30rpx 30rpx 0 0;
    z-index: 999;

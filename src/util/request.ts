@@ -56,14 +56,14 @@ service.interceptors.response.use(
             title: data.description || data.message || '请求失败',
             icon: 'none'
          });
-         return Promise.reject(data);
+         return Promise.resolve(data);
       }
       return data;
    },
    error => {
       uni.showToast({ title: '网络错误', icon: 'error' });
-      console.log('请求错误:', error);
-      return Promise.reject(error);
+
+      return Promise.resolve(error);
    }
 );
 export default service;

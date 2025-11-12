@@ -1,167 +1,142 @@
 <template>
    <view class="page">
       <!-- 顶部用户信息卡片 -->
-      <view
-         class="bg-gradient-to-r from-pink-500 to-purple-500 p-6 relative overflow-hidden">
-         <!-- 装饰性圆点 -->
-         <view
-            class="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full"></view>
-         <view
-            class="absolute bottom-5 left-10 w-12 h-12 bg-white/10 rounded-full"></view>
-
-         <view class="!flex items-center justify-between relative z-10">
+      <view class="page-header">
+         <view class="user-info-container">
             <!-- 左侧头像和用户信息 -->
-            <view class="!flex items-center">
-               <image
-                  :src="
-                     userStore.userInfo?.avatarUrl ||
-                     'https://ts1.tc.mm.bing.net/th/id/OIP-C.-r8TdWtF72EheUNjt_uKvwAAAA?rs=1&pid=ImgDetMain&o=7&rm=3'
-                  "
-                  class="!w-20 !h-20 rounded-full border-4 border-white/30 object-cover"
-                  mode="aspectFill" />
-               <view class="mr-4 text-white h-full">
-                  <view class="text-xl font-bold mb-0.5">{{
-                     userStore.userInfo?.username || '用户名称'
-                  }}</view>
-                  <view class="text-white/80 text-sm mt-1">{{
-                     userStore.userInfo?.email || 'user@example.com'
-                  }}</view>
+            <view class="user-main-info">
+               <view class="avatar-container" @click="showPopup = true">
+                  <image
+                     :src="
+                        userInfo?.avatarUrl ||
+                        'https://ts1.tc.mm.bing.net/th/id/OIP-C.-r8TdWtF72EheUNjt_uKvwAAAA?rs=1&pid=ImgDetMain&o=7&rm=3'
+                     "
+                     class="user-avatar"
+                     mode="aspectFill" />
+
+                  <view class="camera-icon">
+                     <tn-icon name="camera-fill"></tn-icon>
+                  </view>
+               </view>
+               <view class="user-text-info">
+                  <view class="username">
+                     <tn-icon
+                        :name="
+                           userInfo?.gender === 1 ? 'sex-male' : 'sex-female'
+                        "
+                        size="26"
+                        :color="userInfo?.gender === 1 ? '#4caf50' : '#f44336'"
+                        bold /><text style="margin-left: 10rpx">
+                        {{ userInfo?.username || '用户名称' }}
+                     </text></view
+                  >
+                  <view class="user-email">
+                     账号：{{ userInfo?.email || 'user@example.com' }}</view
+                  >
                </view>
             </view>
 
             <!-- 右侧查看按钮 -->
             <view
-               class="!flex items-center text-white/90"
+               class="view-button"
                @click="router.push({ name: 'usermessage' })">
                <text>查看</text>
-               <wd-icon name="arrow-right" size="14" class="ml-1" />
+               <wd-icon name="arrow-right" size="14" class="arrow-icon" />
             </view>
          </view>
 
          <!-- 用户数据统计 -->
-         <view class="!flex justify-around mt-8 cart">
-            <view class="text-center" @click="router.push({ name: 'focuse' })">
-               <view class="text-lg">{{
-                  statusnum.myFocus == 0 ? '暂无' : statusnum.myFocus
+         <view class="stats-container">
+            <view class="stat-item" @click="router.push({ name: 'focuse' })">
+               <view class="stat-number">{{
+                  statusnum.myFocus == 0 ? '0' : statusnum.myFocus
                }}</view>
-               <view class="text-xs mt-1">我关注</view>
+               <view class="stat-label">我关注的</view>
             </view>
-            <view class="text-center" @click="router.push({ name: 'reply' })">
-               <view class="text-lg">{{
-                  statusnum.myReply == 0 ? '暂无' : statusnum.myReply
+            <view class="stat-item" @click="router.push({ name: 'reply' })">
+               <view class="stat-number">{{
+                  statusnum.myReply == 0 ? '0' : statusnum.myReply
                }}</view>
-               <view class="text-xs mt-1">回复我</view>
+               <view class="stat-label">回复我的</view>
             </view>
             <view
-               class="text-center"
+               class="stat-item"
                @click="router.push({ name: 'acceptable' })">
-               <view class="text-lg">{{
-                  statusnum.myLike == 0 ? '暂无' : statusnum.myLike
+               <view class="stat-number">{{
+                  statusnum.myLike == 0 ? '0' : statusnum.myLike
                }}</view>
-               <view class="text-xs mt-1">认同我</view>
+               <view class="stat-label">认同我的</view>
             </view>
-         </view>
-      </view>
-
-      <!-- 选项卡列表 -->
-      <view class="!mt-4 px-4">
-         <view class="bg-white rounded-xl mt-2 overflow-hidden shadow-sm">
-            <view class="border-b border-gray-100">
-               <wd-cell
-                  title="我的匹配"
-                  icon="heart"
-                  :show-arrow="true"
-                  class="cell-item"
-                  @click="handleMatchClick">
-                  <template #right-icon>
-                     <view
-                        class="text-xs bg-red-50 text-red-500 px-1.5 py-0.5 rounded-full">
-                        12
-                     </view>
-                  </template>
-               </wd-cell>
-            </view>
-
-            <view class="border-b border-gray-100">
-               <wd-cell
-                  title="我的活动"
-                  icon="calendar"
-                  :show-arrow="true"
-                  class="cell-item"
-                  @click="handleActivityClick">
-                  <template #right-icon>
-                     <view class="text-xs !flex items-center">
-                        <text class="text-red-500">*</text>
-                        <wd-icon name="arrow-right" size="12" class="ml-2" />
-                     </view>
-                  </template>
-               </wd-cell>
-            </view>
-
-            <wd-cell
-               title="我的收藏"
-               icon="star"
-               :show-arrow="true"
-               class="cell-item"
-               @click="handleCollectionClick" />
          </view>
       </view>
 
       <!-- 系统设置和客服帮助 -->
-      <view class="!mt-4 px-4">
-         <view class="bg-white rounded-xl mt-2 overflow-hidden shadow-sm">
-            <view class="border-b border-gray-100">
+      <view class="section-container">
+         <view class="card-section">
+            <view class="cell-border">
                <wd-cell
-                  title="系统设置"
-                  icon="setting"
+                  title="用户信息"
+                  icon="user"
                   :show-arrow="true"
+                  is-link
                   class="cell-item"
                   @click="handleSettingClick" />
             </view>
 
-            <view class="border-b border-gray-100">
+            <view class="cell-border">
                <wd-cell
                   title="客服帮助"
                   icon="help-circle"
                   :show-arrow="true"
                   class="cell-item"
+                  is-link
                   @click="handleHelpClick" />
             </view>
 
-            <view class="border-b border-gray-100">
+            <view class="cell-border">
                <wd-cell
                   title="关于我们"
                   icon="info-circle"
+                  is-link
                   :show-arrow="true"
                   class="cell-item"
                   @click="handleAboutClick" />
             </view>
-            <view
-               class="border-b border-gray-100"
-               @click="router.push({ name: 'userlst' })">
+            <view class="cell-border" @click="router.push({ name: 'userlst' })">
                <wd-cell
                   title="切换用户"
-                  icon="logout"
+                  icon="history"
+                  is-link
                   :show-arrow="true"
                   class="cell-item" />
             </view>
 
-            <view class="border-b border-gray-100" @click="handleLogout">
+            <view class="cell-border" @click="handleLogout">
                <wd-cell
                   title="退出登录"
                   icon="logout"
                   :show-arrow="true"
+                  is-link
                   class="cell-item" />
             </view>
 
             <wd-cell
                title="隐私政策"
-               icon="shield"
+               icon="laptop"
                :show-arrow="true"
                class="cell-item"
+               is-link
                @click="handlePrivacyClick" />
          </view>
       </view>
+      <tn-update-user-info-popup
+         confirm-bg-color="#ffe088"
+         confirm-text-color="#000"
+         v-model:show="showPopup"
+         v-model:nickname="UserEiditFrom.username"
+         v-model:avatar="UserEiditFrom.avatarUrl"
+         @choose-avatar="avatarChooseHandle"
+         @confirm="exiditUserInfo" />
    </view>
 </template>
 
@@ -169,18 +144,63 @@
 import { useRouter } from 'uni-mini-router';
 import { useStore } from '@/store/user';
 import { sockeStore } from '@/store/socke';
-import { UserLogout } from '@/api/user';
+import { UserEdit, UserIsLogin, UserLogout, UserGetInfo } from '@/api/user';
 import { YoUViewStatistics } from '@/api/system';
 import { onShow } from '@dcloudio/uni-app';
+import TnUpdateUserInfoPopup from 'tnuiv3p-tn-update-user-info-popup/index.vue';
+import { reactive, watch } from 'vue';
+import { updateOssFile } from '@/api/file';
 const router = useRouter();
 const userStore = useStore();
 const { SocketTask } = sockeStore();
-
+const { getEiditUser, setUserInfo, setTokens } = userStore;
+//抽屉
+const showPopup = ref<boolean>(false);
+const userInfo = ref({ ...useStore.userInfo });
+const UserEiditFrom = reactive({
+   avatarUrl: '',
+   username: ''
+});
 const statusnum = ref({
    myFocus: 0,
    myReply: 0,
    myLike: 0
 });
+
+watch(
+   () => userStore.userInfo,
+   (newVal, oldVal) => {
+      userInfo.value = newVal;
+      UserEiditFrom.avatarUrl = newVal.avatarUrl || '';
+      UserEiditFrom.username = newVal.username || '';
+   },
+   {
+      immediate: true
+   }
+);
+
+// 头像选择事件
+const avatarChooseHandle = async (url: string) => {
+   // 换成自己的上传接口
+   const res = await updateOssFile(url);
+
+   const { code, data } = JSON.parse(res.data);
+   if (code == 0) {
+      UserEiditFrom.avatarUrl = data;
+   }
+};
+
+const exiditUserInfo = async () => {
+   let res = await UserEdit(getEiditUser(UserEiditFrom));
+   if (res.code == 0) {
+      // 重新获取用户信息存储
+      let res = await UserGetInfo();
+      if (res.code == 0) {
+         setUserInfo(res.data);
+         setTokens(res.data);
+      }
+   }
+};
 
 // 退出登录处理
 const handleLogout = () => {
@@ -220,39 +240,194 @@ onShow(async () => {
 </script>
 
 <style lang="scss" scoped>
+// 页面基础样式
 .page {
    overflow: hidden;
    padding-top: var(--status-bar-height); // 状态栏
    padding-bottom: env(safe-area-inset-bottom); // 底部安全区
+   background: #f7f7f7;
 }
-.cart {
+
+// 页面头部样式
+.page-header {
+   background: var(--quyou-nav-bg-color);
+   padding: 28rpx;
+   position: relative;
+   padding-bottom: 100rpx;
+   border-radius: 0 0 30rpx 30rpx;
+}
+
+// 用户信息区域
+.user-info-container {
+   display: flex;
+
+   justify-content: space-between;
+   position: relative;
+   z-index: 10;
+}
+
+.user-main-info {
+   display: flex;
+   align-items: center;
+}
+
+.avatar-container {
+   position: relative;
+}
+
+.user-avatar {
+   width: 150rpx;
+   height: 150rpx;
+   border: 16rpx solid rgba(255, 255, 255, 0.3);
+   border-radius: 50%;
+   object-fit: cover;
+   position: relative;
+}
+
+.camera-icon {
+   position: absolute;
+   bottom: 10rpx;
+   right: 10rpx;
+   font-size: 18rpx;
+   width: 30rpx;
+   height: 30rpx;
+   border: 5rpx solid white;
+   background: rgba(0, 0, 0, 0.5);
+   display: flex;
+   justify-content: center;
+   border-radius: 50%;
+   align-items: center;
+   color: white;
+}
+
+.user-text-info {
+   margin-left: 25rpx;
+   display: flex;
+   flex-direction: column;
+
+   font-size: 22rpx;
+   justify-content: center;
+   font-weight: bold;
+   height: 100%;
+}
+
+.username {
+   font-size: 24rpx;
+   margin-bottom: 15rpx;
+   color: #303030;
+}
+
+.user-email {
+   font-size: 22rpx;
+   margin-top: 4rpx;
+   color: #6f6c65;
+}
+
+// 查看按钮
+.view-button {
+   display: flex;
+   align-items: center;
+   color: #b8b1b0;
+}
+
+.arrow-icon {
+   margin-left: 4rpx;
+}
+
+// 统计数据区域
+.stats-container {
+   position: absolute;
+   bottom: -50rpx;
+   left: 50%;
+   width: 90%;
+   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+   transform: translateX(-50%);
+   display: flex;
+   justify-content: space-between;
+   margin-top: 20rpx;
    background: #fff;
    color: black;
-   margin-top: 1em;
-   padding: 10rpx 20rpx;
+   padding: 30rpx 80rpx;
+
    border-radius: 15rpx;
 }
 
-.cell-item {
-   &::after {
-      border: none !important;
-   }
-
-   .wd-cell__title {
-      font-size: 15px;
-   }
-
-   .wd-cell__icon {
-      color: #666;
-   }
+.stat-item {
+   text-align: center;
 }
 
-// 添加卡片动画效果
-.card-hover {
-   transition: all 0.3s ease;
+.stat-number {
+   font-size: 28rpx;
+   font-weight: bold;
+}
 
-   &:active {
-      transform: scale(0.98);
+.stat-label {
+   font-size: 22rpx;
+   margin-top: 4rpx;
+}
+
+// 内容区块容器
+.section-container {
+   margin-top: 100rpx;
+   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+   padding: 0 30rpx;
+}
+
+.card-section {
+   background: white;
+   border-radius: 16rpx;
+   margin-top: 8rpx;
+   overflow: hidden;
+   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+   transition: all 0.3s ease;
+}
+
+.cell-border {
+   border-bottom: 4rpx solid #f5f5f5;
+}
+
+// 单元格样式
+.cell-item::after {
+   border: none !important;
+}
+
+.cell-item .wd-cell__title {
+   font-size: 15px;
+}
+
+.cell-item .wd-cell__icon {
+   color: #666;
+}
+
+// 角标样式
+.badge {
+   font-size: 12rpx;
+   background-color: #fef2f2;
+   color: #ef4444;
+   padding: 2rpx 6rpx;
+   border-radius: 10rpx;
+}
+
+.activity-badge {
+   font-size: 12rpx;
+   display: flex;
+   align-items: center;
+}
+
+.activity-dot {
+   color: #ef4444;
+}
+
+.activity-arrow {
+   margin-left: 8rpx;
+}
+:deep() {
+   .tn-popup.is-visible .tn-popup__content {
+      bottom: 100rpx;
+   }
+   .tn-update-user-info-popup__avatar--image {
+      width: 100% !important;
+      height: 100% !important;
    }
 }
 </style>

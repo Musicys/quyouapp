@@ -1,7 +1,12 @@
 <!-- 使用页面滚动示例 -->
 <template>
    <!-- 此时使用了页面的滚动，z-paging不需要有确定的高度，use-page-scroll需要设置为true -->
-   <z-paging ref="paging" v-model="dataList" use-page-scroll @query="queryList">
+   <z-paging
+      ref="paging"
+      v-model="dataList"
+      :refresher-enabled="false"
+      use-page-scroll
+      @query="queryList">
       <template #top>
          <Navtop />
       </template>

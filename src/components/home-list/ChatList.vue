@@ -4,8 +4,8 @@
    <z-paging
       ref="paging"
       :refresher-enabled="false"
-      v-model="dataList"
       use-page-scroll
+      v-model="dataList"
       @query="queryList">
       <template #top>
          <Navtop></Navtop>
@@ -18,7 +18,9 @@
          <ChatCart :data="item"></ChatCart>
       </view>
 
-      <template #bottom> </template>
+      <template #bottom>
+         <NavBottom></NavBottom>
+      </template>
    </z-paging>
 </template>
 
@@ -30,6 +32,7 @@ import { getChatList } from '@/api/chat';
 import HomeUserCart from '@/components/home-user-cart/index.vue';
 import { throttle } from '@/util/index';
 import Navtop from '@/components/nav-top/index.vue';
+import NavBottom from '@/components/nav-buttom/index.vue';
 const paging = ref(null);
 
 let dataList = ref();
@@ -61,8 +64,6 @@ watch(
    { immediate: true }
 );
 // 类似mixins，如果是页面滚动务必要写这一行，并传入当前ref绑定的paging，注意此处是paging，而非paging.value
-onShow(() => {
-   paging.value?.refresh();
-});
+
 // 其他省略
 </script>

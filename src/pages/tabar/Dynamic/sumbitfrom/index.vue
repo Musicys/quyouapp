@@ -56,15 +56,9 @@
          <!-- 第二行：标签和相册icon -->
          <view class="function-line">
             <view class="function-item" @click="selectEmoji">
-               <wd-icon name="image" color="#666"></wd-icon>
+               <tn-icon name="cute" bold />
             </view>
             <view class="function-item" @click="openAlbum">
-               <wd-icon name="image" color="#666"></wd-icon>
-            </view>
-            <view class="function-item">
-               <wd-icon name="image" color="#666"></wd-icon>
-            </view>
-            <view class="function-item">
                <wd-icon name="image" color="#666"></wd-icon>
             </view>
          </view>
@@ -81,7 +75,6 @@ import { useStore } from '@/store/user';
 import { onMounted, reactive, ref, computed } from 'vue';
 import { useRouter } from 'uni-mini-router';
 import { updateOssFile } from '@/api/file';
-
 const router = useRouter();
 const store = useStore();
 const { userInfo, location } = store;
@@ -117,7 +110,9 @@ const handlePublish = async () => {
       });
       return;
    }
-
+   uni.showLoading({
+      title: '发布中...'
+   });
    if (imagsarr.value.length > 0) {
       const rucest = [];
 
@@ -151,6 +146,7 @@ const handlePublish = async () => {
    try {
       const res = await addDynamic(sumbit);
       if (res.code === 0) {
+         uni.hideLoading();
          uni.showToast({
             title: '发布成功',
             icon: 'none'
@@ -159,14 +155,9 @@ const handlePublish = async () => {
          setTimeout(() => {
             router.back();
          }, 1500);
-      } else {
-         uni.showToast({
-            title: res.message || '发布失败',
-            icon: 'none'
-         });
       }
    } catch (error) {
-      console.error('发布动态失败:', error);
+      uni.hideLoading();
       uni.showToast({
          title: '网络异常，请重试',
          icon: 'none'
@@ -252,7 +243,8 @@ onMounted(() => {
    justify-content: space-between;
    height: var(--quyou-nav-ste-height);
    padding: 0 16rpx;
-   background-color: #fff;
+   font-size: 26rpx;
+   background-color: var(--quyou-nav-bg-color);
    border-bottom: 1px solid #f0f0f0;
 }
 
@@ -300,13 +292,15 @@ onMounted(() => {
 .input-area {
    padding: 16rpx;
    flex: 1;
+   background: var(--quyou-bg-centext-color);
 }
 
 .content-textarea {
    width: 100%;
    min-height: 120rpx;
-   font-size: 24rpx;
+   font-size: 28rpx;
    color: #333;
+
    line-height: 1.5;
    padding: 0;
 }
@@ -331,6 +325,8 @@ onMounted(() => {
    justify-content: space-between;
    align-items: center;
    margin-bottom: 12rpx;
+   height: 56rpx;
+   font-size: 26rpx;
 }
 
 .location-info {
@@ -366,9 +362,9 @@ onMounted(() => {
 }
 
 .function-item {
-   width: 48rpx;
-
+   font-size: 42rpx;
    display: flex;
+   margin: 0 12rpx;
    align-items: center;
    justify-content: center;
 }

@@ -21,8 +21,13 @@
          <vue class="top">
             <view class="first-line">
                <view class="box">
+                  <tn-icon
+                     :name="data.gender === 1 ? 'sex-male' : 'sex-female'"
+                     size="36"
+                     :color="data.gender === 1 ? '#4caf50' : '#f44336'"
+                     bold />
                   <text class="username">{{ data.username }}</text>
-                  <text class="online-status">
+                  <text class="online-status" v-if="data.login === 1">
                      {{ data.login === 1 ? '在线' : '昨天在线' }}
                   </text>
                </view>
@@ -50,14 +55,7 @@
          </vue>
          <!-- 图片展示区 -->
          <view v-if="imageList.length" class="images-container">
-            <wd-img
-               v-for="(img, index) in imageList"
-               :enable-preview="true"
-               :key="index"
-               :src="img"
-               mode="aspectFill"
-               class="image-item"
-               :alt="'用户上传图片 ' + (index + 1)" />
+            <tn-photo-album :data="imageList" :column="3" max="3" />
          </view>
       </view>
    </view>
@@ -101,7 +99,9 @@ const gosend = () => {
          })
       );
       IsAdd.value = true;
-      router.push({ name: 'chat', params: { sendid: props.data.id } });
+      setTimeout(() => {
+         router.push({ name: 'chat', params: { sendid: props.data.id } });
+      }, 500);
    }
 };
 onMounted(() => {

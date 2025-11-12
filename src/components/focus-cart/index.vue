@@ -1,10 +1,11 @@
 <template>
-   <view class="focus-cart" @click="handleViewProfile">
+   <view class="focus-cart">
       <!-- 用户头像区域 -->
       <view class="avatar-section">
          <view class="avatar-container">
             <!-- 卡通风格头像 -->
             <image
+               @click.stop="handleViewProfile"
                :src="localData.avatarUrl || ''"
                mode="aspectFill"
                class="user-avatar" />
@@ -19,9 +20,13 @@
             <!-- 用户名 -->
             <text class="username">{{ localData.username || '用户' }}</text>
             <!-- 关注提示 -->
+            <text class="time" style="font-size: 22rpx">{{
+               formatViewTime
+            }}</text>
          </view>
+
          <!-- 关注日期 -->
-         <text class="focus-date">{{ formatFocusDate }}</text>
+
          <!-- 个人简介 -->
          <text v-if="localData.introductory" class="introductory">{{
             localData.introductory
@@ -30,7 +35,7 @@
 
       <!-- 操作按钮区域 -->
       <view class="action-section">
-         <button class="chat-button" @click.stop="handleChat">聊天</button>
+         <button class="chat-button" @click="addFriend">聊天</button>
       </view>
    </view>
 </template>
@@ -38,11 +43,16 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { FocusUserVo } from '@/api/focus/model/type';
+import { useRouter } from 'uni-mini-router';
+import { useStore } from '@/store/user';
+import { sockeStore } from '@/store/socke';
+const store = useStore();
+const router = useRouter();
+const socke = sockeStore();
 
 const props = defineProps<{
    data: FocusUserVo;
 }>();
-
 // 创建本地响应式数据副本，符合单向数据流
 const localData = ref<FocusUserVo>({ ...props.data });
 
@@ -54,21 +64,81 @@ watch(
    },
    { deep: true }
 );
+// 发起聊天
+const addFriend = () => {
+   console.log('ces');
+
+   const isFriend = socke.IsFriend(localData.value.userId);
+   if (isFriend) {
+      router.push({
+         name: 'chat',
+         params: { sendid: localData.value.userId }
+      });
+   } else {
+      socke.send(
+         JSON.stringify({
+            id: store.userInfo.id,
+            type: 4,
+            sendid: localData.value.userId,
+            sendteam: null,
+            context: '你好啊，我们开始聊天把-.-',
+            sendTime: new Date()
+         })
+      );
+      setTimeout(() => {
+         router.push({
+            name: 'chat',
+            params: { sendid: localData.value.userId }
+         });
+      }, 500);
+   }
+};
 
 // 计算属性：格式化关注日期
-const formatFocusDate = computed(() => {
-   if (!localData.value.createTime) return '';
-   const date = new Date(localData.value.createTime);
-   const month = String(date.getMonth() + 1).padStart(2, '0');
-   const day = String(date.getDate()).padStart(2, '0');
-   return `${month} - ${day}`;
+// 格式化观看时间
+const formatViewTime = computed(() => {
+   if (!localData.value.createTime) return '未知时间';
+
+   try {
+      const viewTime = new Date(localData.value.createTime);
+      const now = new Date();
+      const diffInSeconds = Math.floor(
+         (now.getTime() - viewTime.getTime()) / 1000
+      );
+
+      // 计算时间差
+      const secondsInMinute = 60;
+      const secondsInHour = secondsInMinute * 60;
+      const secondsInDay = secondsInHour * 24;
+      const secondsInMonth = secondsInDay * 30;
+
+      if (diffInSeconds < secondsInMinute) {
+         return '刚刚';
+      } else if (diffInSeconds < secondsInHour) {
+         const minutes = Math.floor(diffInSeconds / secondsInMinute);
+         return `${minutes}分钟前`;
+      } else if (diffInSeconds < secondsInDay) {
+         const hours = Math.floor(diffInSeconds / secondsInHour);
+         return `${hours}小时前`;
+      } else if (diffInSeconds < secondsInMonth) {
+         const days = Math.floor(diffInSeconds / secondsInDay);
+         return `${days}天前`;
+      } else {
+         // 超过一个月显示具体日期
+         return `${viewTime.getFullYear()}-${String(viewTime.getMonth() + 1).padStart(2, '0')}-${String(viewTime.getDate()).padStart(2, '0')}`;
+      }
+   } catch (error) {
+      console.error('时间格式化错误:', error);
+      return '未知时间';
+   }
 });
 
 // 查看用户资料
 const handleViewProfile = () => {
    // 导航到用户资料页面
-   uni.navigateTo({
-      url: `/pages/user/profile?id=${localData.value.userId}`
+   router.push({
+      name: 'preinfo',
+      params: { userId: localData.value.userId }
    });
 };
 
@@ -200,7 +270,7 @@ const handleChat = () => {
    background-color: #ff6b81;
    border: none;
    border-radius: 24rpx;
-   padding: 12rpx 32rpx;
+   padding: 0 32rpx;
    min-width: 120rpx;
    text-align: center;
    box-sizing: border-box;

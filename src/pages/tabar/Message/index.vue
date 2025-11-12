@@ -1,7 +1,9 @@
 <template>
    <view class="find-container">
       <!-- 顶部标签栏和操作图标 -->
-      <view class="header-section" :class="{ 'fixed-header': isHeaderFixed }">
+      <view
+         class="header-section !bg-[var(--quyou-nav-bg-color)]"
+         :class="{ 'fixed-header': isHeaderFixed }">
          <view class="tab-bar">
             <view
                :class="{ 'tab-item': true, active: tabIndex === 0 }"
@@ -25,41 +27,32 @@
       <view class="feature-modules" :class="{ '!mt-[140rpx]': isHeaderFixed }">
          <!-- 最新关注 -->
          <view class="feature-item" @click="router.push({ name: 'befocused' })">
-            <view class="feature-icon">
-               <view class="icon-circle follow-icon">
-                  <text class="icon-text">+</text>
-               </view>
+            <view class="icon-circle">
+               <image src="@/static/imgs/focues.png" mode="widthFix"></image>
             </view>
+
             <text class="feature-text">最新关注</text>
-            <text class="feature-count">{{
-               statusnum.focus == 0 ? '暂无' : statusnum.focus
-            }}</text>
+            <text class="feature-count">{{ statusnum.focus }}</text>
          </view>
 
          <!-- 谁看过我 -->
          <view class="feature-item" @click="router.push({ name: 'viewed' })">
-            <view class="feature-icon">
-               <view class="icon-circle view-icon">
-                  <text class="icon-text">�️</text>
-               </view>
+            <view class="icon-circle">
+               <image src="@/static/imgs/look.png" mode="widthFix"></image>
             </view>
+
             <text class="feature-text">谁看过我</text>
-            <text class="feature-count">{{
-               statusnum.look - 1 == 0 ? '暂无' : statusnum.look - 1
-            }}</text>
+            <text class="feature-count">{{ statusnum.look }}</text>
          </view>
 
          <!-- 谁喜欢我 -->
          <view class="feature-item" @click="router.push({ name: 'look' })">
-            <view class="feature-icon">
-               <view class="icon-circle like-icon">
-                  <text class="icon-text">❤️</text>
-               </view>
+            <view class="icon-circle">
+               <image src="@/static/imgs/love.png" mode="widthFix"></image>
             </view>
+
             <text class="feature-text">谁喜欢我</text>
-            <text class="feature-count">{{
-               statusnum.like == 0 ? '暂无' : statusnum.like
-            }}</text>
+            <text class="feature-count">{{ statusnum.like }}</text>
          </view>
       </view>
 
@@ -110,6 +103,7 @@ onShow(async () => {
    background-color: #f5f7fa;
    padding-bottom: 20rpx;
    padding-top: 0; // 确保顶部没有多余的padding
+   background: var(--quyou-bg-centext-color);
 }
 
 // 顶部快捷入口样式
@@ -150,7 +144,7 @@ onShow(async () => {
    justify-content: space-between;
    align-items: center;
    padding: 20rpx;
-   background-color: #fff;
+
    margin-bottom: 20rpx;
    z-index: 10;
    transition: all 0.3s ease;
@@ -185,7 +179,7 @@ onShow(async () => {
 // 中间标签栏样式
 .tab-bar {
    display: flex;
-   background-color: #fff;
+
    border-radius: 12rpx;
    overflow: hidden;
 }
@@ -214,7 +208,6 @@ onShow(async () => {
       }
    }
    &:active {
-      background-color: #f5f5f5;
    }
 }
 
@@ -251,15 +244,17 @@ onShow(async () => {
 .feature-modules {
    display: grid;
    grid-template-columns: repeat(3, 1fr);
-   gap: 15rpx;
+   gap: 40rpx;
    padding: 0 20rpx 20rpx;
 }
 
 .feature-item {
    display: flex;
-   flex-direction: column;
+   position: relative;
    align-items: center;
-   padding: 20rpx 10rpx;
+   justify-content: center;
+   font-size: 24rpx;
+   padding: 10rpx 10rpx;
    border-radius: 16rpx;
    transition: all 0.2s;
    &:active {
@@ -267,27 +262,28 @@ onShow(async () => {
    }
 }
 
-.feature-icon {
-   margin-bottom: 15rpx;
-}
-
 .icon-circle {
-   width: 80rpx;
-   height: 80rpx;
+   --h: 50rpx;
+   width: var(--h);
+   height: var(--h);
    border-radius: 50%;
    display: flex;
    justify-content: center;
    align-items: center;
    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+   & > image {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+   }
 }
 
 // 彩色卡片式设计 - 最新关注（蓝色）
 .feature-item:nth-child(1) {
-   background-color: #f0f7ff;
+   background: #4096ff55;
 }
 
 .follow-icon {
-   background-color: #4096ff;
    .icon-text {
       color: #fff;
       font-size: 40rpx;
@@ -297,11 +293,10 @@ onShow(async () => {
 
 // 彩色卡片式设计 - 谁看过我（紫色）
 .feature-item:nth-child(2) {
-   background-color: #f9f0ff;
+   background: #a253d455;
 }
 
 .view-icon {
-   background-color: #a253d4;
    .icon-text {
       color: #fff;
       font-size: 36rpx;
@@ -310,7 +305,7 @@ onShow(async () => {
 
 // 彩色卡片式设计 - 谁喜欢我（粉色）
 .feature-item:nth-child(3) {
-   background-color: #fff0f6;
+   background: #ffe20d85;
 }
 
 .like-icon {
@@ -328,7 +323,6 @@ onShow(async () => {
 }
 
 .recommend-icon {
-   background-color: #f6ffed;
    .icon-text {
       color: #52c41a;
       font-size: 36rpx;
@@ -340,31 +334,26 @@ onShow(async () => {
 }
 
 .feature-text {
-   font-size: 26rpx;
-   color: #666;
-   margin-bottom: 5rpx;
+   font-size: 24rpx;
+   color: #272626;
+   margin-left: 5rpx;
    font-weight: 500;
 }
 
 // 彩色数字角标
 .feature-count {
-   font-size: 24rpx;
-   color: #fff;
-   padding: 2rpx 10rpx;
-   border-radius: 10rpx;
-   font-weight: 500;
-}
-
-.feature-item:nth-child(1) .feature-count {
-   background-color: #4096ff;
-}
-
-.feature-item:nth-child(2) .feature-count {
-   background-color: #a253d4;
-}
-
-.feature-item:nth-child(3) .feature-count {
-   background-color: #ff69b4;
+   position: absolute;
+   top: 0rpx;
+   right: -12rpx;
+   background: red;
+   border-radius: 50%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   font-size: 18rpx;
+   color: white;
+   width: 25rpx;
+   height: 25rpx;
 }
 
 // 区域标题样式
@@ -388,7 +377,6 @@ onShow(async () => {
    display: flex;
    align-items: center;
    padding: 24rpx;
-   background-color: #fff;
    border-radius: 12rpx;
    margin-bottom: 15rpx;
    transition: all 0.2s;

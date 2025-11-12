@@ -37,9 +37,9 @@ export const sockeStore = defineStore('socke', () => {
          },
          fail: err => {
             console.error('WebSocket 连接创建失败', err);
-            // setTimeout(() => {
-            //    websocke(id);
-            // }, 1000);
+            setTimeout(() => {
+               websocke(id);
+            }, 1000);
          }
       });
 

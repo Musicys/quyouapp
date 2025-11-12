@@ -6,11 +6,17 @@
             <wd-icon
                @click="onBack"
                name="arrow-left"
-               size="36rpx"
+               size="16px"
                class="!mr-1.5"
                color="#333"></wd-icon>
 
             <image
+               @click="
+                  router.push({
+                     name: 'preinfo',
+                     params: { userId: dynamicDetail.userId }
+                  })
+               "
                class="user-avatar"
                :src="dynamicDetail.avatarUrl?.trim()"
                mode="aspectFill"></image>
@@ -21,7 +27,10 @@
                <text class="post-time">{{ dynamicDetail.formattedTime }}</text>
             </view>
             <view class="user-actions">
-               <button class="follow-btn">关注</button>
+               <button v-if="isSelf" class="follow-btn">自己</button>
+               <button v-else class="follow-btn" @click="handleFollow">
+                  {{ dynamicDetail.isFocus == '0' ? '关注' : '已关注' }}
+               </button>
                <view class="share-icon">
                   <wd-icon name="share" size="24rpx" />
                </view>
@@ -34,18 +43,8 @@
          <view class="dynamic-text">{{ dynamicDetail.context }}</view>
 
          <!-- 动态图片 -->
-         <view
-            class="dynamic-images"
-            v-if="
-               dynamicDetail.imgarr &&
-               JSON.parse(dynamicDetail.imgarr).length > 0
-            ">
-            <image
-               v-for="(img, index) in JSON.parse(dynamicDetail.imgarr)"
-               :key="index"
-               :src="img.trim()"
-               mode="aspectFill"
-               class="dynamic-image"></image>
+         <view class="dynamic-images" v-if="imgarr.length">
+            <tn-photo-album :data="imgarr" :column="3" />
          </view>
 
          <!-- 定位信息 -->
@@ -61,11 +60,15 @@
          <!-- 互动数据 -->
          <view class="interaction-stats">
             <view class="stat-item">
-               <wd-icon name="message-circle" size="24rpx" />
+               <tn-icon name="message" size="36" bold />
                <text>{{ dynamicDetail.count }} 评论</text>
             </view>
-            <view class="stat-item">
-               <wd-icon name="heart" size="24rpx" />
+            <view class="stat-item" @click="handleLike">
+               <tn-icon
+                  :color="dynamicDetail.isLove ? '#FF4D4F' : '#999'"
+                  :name="dynamicDetail.isLove ? 'like-fill' : 'like'"
+                  size="36"
+                  bold />
                <text>{{ dynamicDetail.love }} 点赞</text>
             </view>
          </view>
@@ -73,7 +76,9 @@
 
       <!-- 评论列表 -->
       <view class="comment-list" v-if="commentList.length > 0">
-         <text class="comment-list-title">评论 ({{ commentList.length }})</text>
+         <text class="comment-list-title"
+            >评论 ({{ dynamicDetail.count }})</text
+         >
          <comment
             v-for="item in commentList"
             :key="item.id"
@@ -88,7 +93,7 @@
       <view
          class="no-comments"
          v-else-if="commentList.length === 0 && dynamicDetail">
-         <text>暂无评论</text>
+         <text>暂无评论，发表你的意见把！</text>
       </view>
 
       <!-- 加载中 -->
@@ -157,6 +162,8 @@ import {
    addComment
 } from '@/api/dynamic';
 import Comment from './components/Comment.vue';
+import { LoveAdd, LoveDel } from '@/api/love';
+import { updateOssFile } from '@/api/file';
 
 const router = useRouter();
 const store = useStore();
@@ -167,10 +174,51 @@ const commentText = ref('');
 const loading = ref(false);
 const dynamicDetail = ref<any>(null);
 const selectedImages = ref<string[]>([]);
+//是否是自己的动态
+const isSelf = computed(() => {
+   return dynamicDetail.value?.userId === store.userInfo?.id;
+});
 
 // 当前回复的用户信息
 const replyingTo = ref<{ id: number; username: string } | null>(null);
 
+const imgarr = computed(() => {
+   try {
+      return dynamicDetail.value?.imgarr
+         ? JSON.parse(dynamicDetail.value?.imgarr)
+         : [];
+   } catch (error) {
+      return [];
+   }
+});
+
+//点赞 取消点赞
+const handleLike = async () => {
+   if (dynamicDetail.value?.isLove) {
+      //取消点赞
+      let res = await LoveDel({
+         commentsId: '',
+         dynamicId: dynamicDetail.value?.id
+      });
+      if (res.code == 0) {
+         dynamicDetail.value.isLove = false;
+
+         dynamicDetail.value.love -= 1;
+      }
+   } else {
+      //点赞
+
+      let res = await LoveAdd({
+         commentsId: '',
+         dynamicId: dynamicDetail.value?.id
+      });
+      if (res.code == 0) {
+         dynamicDetail.value.isLove = true;
+
+         dynamicDetail.value.love += 1;
+      }
+   }
+};
 // 格式化时间
 const formatTime = (timeString: string) => {
    const time = new Date(timeString);
@@ -204,6 +252,7 @@ const getDynamicDetails = async () => {
             ...res.data,
             formattedTime: formatTime(res.data.createTime)
          };
+         console.log(dynamicDetail.value);
 
          // 同时获取评论列表
          await getCommentList();
@@ -301,16 +350,26 @@ const submitComment = async () => {
    if (
       (!commentText.value.trim() && selectedImages.value.length === 0) ||
       !route.query.dynamicId
-   )
+   ) {
       return;
+   }
+   console.log('点击了', selectedImages.value[0]);
+   let fileUrl = null;
+   if (selectedImages.value[0]) {
+      const result = await updateOssFile(selectedImages.value[0]);
+
+      const res = JSON.parse((result.data as string) || []);
+      console.log(res);
+
+      if (res.code === 0) {
+         fileUrl = res.data;
+      }
+   }
 
    // 准备提交的数据
    const commentData = {
       context: commentText.value,
-      imgArr:
-         selectedImages.value.length > 0
-            ? JSON.stringify(selectedImages.value)
-            : '',
+      imgArr: fileUrl ? JSON.stringify([fileUrl]) : '',
       replyId: Number(route.query.dynamicId),
       replyUserId: replyingTo.value?.id || null
    };
@@ -331,9 +390,7 @@ const submitComment = async () => {
    }
 };
 const onBack = () => {
-   router.pushTab({
-      path: '/pages/tabar/dynamic/index'
-   });
+   router.back();
 };
 
 onMounted(() => {

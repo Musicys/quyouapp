@@ -1,21 +1,27 @@
 <template>
-   <view class="dynamic-love-container" @click="handleViewDynamic">
+   <view
+      class="dynamic-love-container"
+      @click="
+         router.push({
+            name: 'datails',
+            params: {
+               dynamicId: localData.id
+            }
+         })
+      ">
       <!-- 左侧：用户信息和互动行为区域 -->
       <view class="left-section">
          <!-- 用户头像 -->
          <image
             :src="localData.avatarUrl || ''"
             mode="aspectFill"
-            class="user-avatar"
-            @click.stop="handleViewUser" />
+            class="user-avatar" />
 
          <!-- 互动信息 -->
          <view class="interaction-info">
             <view class="top-row">
                <!-- 用户名 -->
-               <text class="username" @click.stop="handleViewUser">{{
-                  localData.username || '用户'
-               }}</text>
+               <text class="username">{{ localData.username || '用户' }}</text>
                <!-- 互动行为 -->
                <text class="action-text">赞了你的动态</text>
             </view>
@@ -45,7 +51,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { DynamicLoveVo } from '@/api/love/model/type';
-
+import { useRouter } from 'uni-mini-router';
+const router = useRouter();
 const props = defineProps<{
    data: DynamicLoveVo;
 }>();
@@ -200,6 +207,7 @@ const handleImageClick = () => {
 
 /* 文案内容 */
 .content-text {
+   max-width: 150rpx;
    font-size: 24rpx;
    color: #666666;
    line-height: 36rpx;
